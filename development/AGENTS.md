@@ -32,7 +32,8 @@ agent context.
 - `whiteboard`: map a codebase's architecture and design rationale, then quiz
   the user whiteboard-defense style on flows, trade-offs, and failure modes
 - `github-self-hosted-runner`: install, register, namespace, verify, or remove
-  GitHub Actions self-hosted runners on a Linux host under systemd
+  GitHub Actions self-hosted runners on Linux under systemd or macOS under
+  launchd
 - `oss-marketing`: sharpen open source README/public-doc positioning for
   first-visit clarity, launch copy, and visitor-to-user conversion
 - `oss-repo-readiness`: audit and prepare a GitHub repo for open source
