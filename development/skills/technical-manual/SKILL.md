@@ -51,6 +51,22 @@ typeset with Paged.js from HTML fragments by the kit in `assets/kit/`.
 | `references/originals.md`      | When you want to see the reference manuals (GGUF, Parquet, Pi Durable, Pi) and which pages to look at.                                                                                      |
 | `assets/kit/`                  | Copied into the workspace: stylesheet, build script, figure generators.                                                                                                                     |
 
+## Prerequisites
+
+Check these before Phase 0, and ask the user to install anything missing before
+the research starts. Do not discover a missing tool at Phase 6.
+
+| Tool                  | Used for                                        | Check                         | Install                                                                 |
+| --------------------- | ----------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------- |
+| Node.js 18+ and `npm` | the kit's build (`kit/build.mjs`)               | `node --version`              | https://nodejs.org or a version manager                                 |
+| Chromium              | Paged.js typesetting and PDF output             | the example build (see Build) | `npx playwright-core install chromium` in the kit folder, or Chrome     |
+| `pdftoppm` (Poppler)  | page images (`--png`) for Phase 6 and hand-over | `command -v pdftoppm`         | macOS `brew install poppler`; Debian/Ubuntu `apt install poppler-utils` |
+| Python 3 and `git`    | figure generators (`kit/figs.py`), capture kit  | `python3 --version`           | system package manager                                                  |
+
+Without `pdftoppm` the build still writes the PDF but skips the page images, and
+you cannot do the visual check in Phase 6. If the user declines to install it,
+say in the hand-over that the pages were not looked at.
+
 ## Workflow
 
 Do the phases in order. No prose is written before phases 1–3 exist on disk: the
@@ -351,9 +367,11 @@ node kit/build.mjs manual --png --dpi 130      # sharper pages for proofreading 
 ```
 
 To check the install, copy `references/example` beside the kit and run
-`node kit/build.mjs example`: 19 pages, no problems. The build needs a Chromium;
-it tries Playwright's, then `PLAYWRIGHT_BROWSERS_PATH`, `CHROME_PATH` and common
-install paths (`npx playwright-core install chromium` fetches one).
+`node kit/build.mjs example --png`: 19 pages, no problems, and page images in
+`example/build/pages/`. The build needs a Chromium; it tries Playwright's, then
+`PLAYWRIGHT_BROWSERS_PATH`, `CHROME_PATH` and common install paths
+(`npx playwright-core install chromium` fetches one). `--png` needs `pdftoppm`
+(see Prerequisites).
 
 The build prints page, section, figure and bound-value counts, then every
 problem: sections without sources, decks, or any figure, table or listing;

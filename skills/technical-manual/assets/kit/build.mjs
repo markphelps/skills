@@ -303,7 +303,7 @@ await browser.close();
 if (wantPng) {
   const pd = path.join(buildDir, 'pages'); fs.rmSync(pd, { recursive: true, force: true }); fs.mkdirSync(pd, { recursive: true });
   try { execFileSync('pdftoppm', ['-r', dpi, '-png', pdfPath, path.join(pd, 'p')]); console.log(`page images: ${pd}`); }
-  catch { console.log('pdftoppm not available; open the PDF to review pages.'); }
+  catch { console.log('pdftoppm not available, so no page images were written. Install Poppler (macOS: brew install poppler; Debian/Ubuntu: apt install poppler-utils) and rebuild with --png.'); }
 }
 console.log(`${pdfPath}\n${info.pages} pages · ${prep.sections} sections · ${prep.figures} figures · ${bound.values} bound values · ${bound.includes} included listings`);
 const perPage = prep.figures / Math.max(1, info.pages);
