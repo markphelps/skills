@@ -40,6 +40,8 @@ agent context.
   release, emphasizing first-run and first-contribution developer experience
 - `session-log-audit`: mine local agent session logs (Claude Code, Pi, Codex)
   for papercuts in a project the user builds with agents, then rank the fixes
+- `technical-manual`: write a book-length, print-ready PDF manual about a
+  format, protocol, library, or system, grounded in its pinned spec and source
 - `verify-bug`: decide whether claimed bugs are real through an isolated
   Prover/Skeptic/Referee hearing, with repro tests in throwaway worktrees
 
@@ -74,5 +76,9 @@ agent context.
   the related records before writing. Never rewrite an existing record's
   history; add a dated amendment or a superseding record instead. Ask before
   bootstrapping a records directory in a repo that has none.
+- For technical manuals, write no prose before the research folder, captures,
+  and outline exist. Every claim traces to a pinned source or captured
+  artefact, figures are drawn from captures, and unverifiable claims are cut or
+  marked unverified.
 - Do not manually restore removed development skills in top-level `skills/`.
   Run `npm run sync` so the generated mirror matches `development/skills/`.

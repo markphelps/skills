@@ -1,0 +1,94 @@
+<section class="sec" id="what-it-is" data-title="Three regions and nothing else"
+  data-deck="A safetensors file is an 8-byte length, that many bytes of JSON, and one unbroken run of tensor bytes. In a 2 MB file the first two regions are 0.03% of the total.">
+<p>This section names the three regions, shows their proportions in two specimens, and lists what the file does and does not store. The following parts take each region in turn.</p>
+
+<figure class="fig" id="fig-regions" data-title="File anatomy" data-tag="byte layout · real files · to scale">
+<div class="fig-sub">tiny.safetensors · 88 bytes · to scale</div>
+<div class="strip"><div class="k1" style="flex:8">N = 64<small>[0, 8)</small></div><div class="k2" style="flex:60">JSON header<small>[8, 68) · 60 B</small></div><div class="k0" style="flex:4"><small>pad</small></div><div class="k4" style="flex:16">data<small>[72, 88)</small></div></div>
+<div class="strip-labels"><span>8 B</span><span style="text-align:center">N = 64 B, of which 4 B are spaces</span><span class="r">16 B</span></div>
+<div class="fig-sub">mlp.safetensors · 2,086,592 bytes · to scale</div>
+<div class="strip"><div class="k2" style="flex:0 0 1.2pt;padding:4pt 0"></div><div class="k4" style="flex:1">data · 2,085,936 B · 8 tensors<small>[656, 2,086,592)</small></div></div>
+<div class="strip-labels"><span>← N and header: 656 B, 0.03% of the file, thinner than this rule</span><span class="r"></span></div>
+<div class="fig-sub">mlp.safetensors · the first 656 bytes, enlarged</div>
+<div class="strip"><div class="k1" style="flex:8">N<small>8 B</small></div><div class="k3" style="flex:30;padding:4pt 0"></div><div class="k2" style="flex:612">eight tensor entries<small>[39, 650) · 611 B</small></div><div class="k0" style="flex:6;padding:4pt 0"></div></div>
+<div class="strip-labels"><span>[0, 8), then <code>__metadata__</code> [9, 39), 30 B</span><span class="r">6 spaces, then data at 656</span></div>
+<div class="legend"><span class="k1">length N</span><span class="k2">tensor entries</span><span class="k3">__metadata__</span><span class="k0">padding</span><span class="k4">tensor data</span></div>
+<figcaption><b>The header is most of a tiny file and a rounding error in a model.</b> <code>tiny.safetensors</code> and <code>mlp.safetensors</code> drawn to scale from <code>research/out/parse.txt</code>. In <code>mlp.safetensors</code> the data section is 99.97% of the file.</figcaption>
+</figure>
+
+<h2>The regions</h2>
+<div class="items">
+<p><b>The length, <code>N</code>.</b> Bytes [0, 8). An unsigned 64-bit little-endian integer giving the size of the header in bytes. The eight-byte length covers its limits.</p>
+<p><b>The header.</b> Bytes [8, 8 + <code>N</code>). One UTF-8 JSON object. Each key is a tensor name and each value records a <code>dtype</code>, a <code>shape</code> and a pair of <code>data_offsets</code>. One reserved key, <code>__metadata__</code>, holds a string-to-string map.</p>
+<p><b>The data section.</b> Bytes [8 + <code>N</code>, end of file). The README calls it the "byte-buffer". The tensors' raw bytes, back to back, with no gaps, no overlap, no alignment padding between them, and no trailer.</p>
+</div>
+
+<h2>What is stored and what is not</h2>
+<table>
+<thead><tr><th>Stored</th><th>Not stored</th></tr></thead>
+<tbody>
+<tr><td>A name for each tensor (a JSON string)</td><td>A magic number, a format version, or a file identifier</td></tr>
+<tr><td>A dtype code, one of 22</td><td>A checksum or hash of anything</td></tr>
+<tr><td>A shape, a list of non-negative integers</td><td>Byte order or element order (little-endian and row-major are assumed)</td></tr>
+<tr><td>Begin and end offsets, relative to the data section</td><td>Strides, sparsity, quantization parameters, compression</td></tr>
+<tr><td>Optional free-form strings under <code>__metadata__</code></td><td>Code, graph structure, or any object other than a tensor</td></tr>
+</tbody></table>
+<p class="note">The left column is the complete content of the header structs at <span class="src">tensor.rs:539–546</span> and <span class="src">tensor.rs:799–806</span>. The right column is the absence of any corresponding field or check in <span class="src">tensor.rs</span>.</p>
+
+<p>The first row of the right column has a practical cost. A reader cannot recognise a safetensors file from its first bytes. The first eight bytes of <code>tiny.safetensors</code> are <code>40 00 00 00 00 00 00 00</code>, which is also a valid start for many other things. The file is identified by its header parsing and its offsets adding up, as <a class="xref" href="#check-order">The checks, in order</a> shows.</p>
+
+<p class="sources">README.md §Format (:76–84); safetensors/src/tensor.rs HashMetadata (:539–546), TensorInfo (:799–806), read_metadata (:390–425); research/parse.py; research/out/parse.txt</p>
+</section>
+
+<section class="sec" id="worked-tiny" data-title="Worked example: all 88 bytes of tiny.safetensors"
+  data-deck="One int32 tensor of shape [2, 2]. Eight bytes of length, sixty of JSON, four spaces and sixteen of data, decoded by hand, match the reference library.">
+<p>This section prints a whole file, decodes it in five steps, and checks the result two ways. The file was written by <code>save_file({"test": np.arange(4, dtype=np.int32).reshape(2, 2)}, …)</code> in <code>research/make_specimens.py</code>.</p>
+
+<pre class="term">$ python3 -c "import sys; sys.stdout.write(open('research/specimens/tiny.safetensors','rb').read().hex(' ', 1))"</pre>
+
+<figure class="fig" id="fig-tiny-hex" data-title="tiny.safetensors" data-tag="hex · whole file · 88 bytes">
+<div class="hex">
+<div><i>000000</i><b class="k1">40</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k2">7b</b><b class="k2">22</b><b class="k2">74</b><b class="k2">65</b><b class="k2">73</b><b class="k2">74</b><b class="k2">22</b><b class="k2">3a</b><u>@·······{&quot;test&quot;:</u></div>
+<div><i>000010</i><b class="k2">7b</b><b class="k2">22</b><b class="k2">64</b><b class="k2">74</b><b class="k2">79</b><b class="k2">70</b><b class="k2">65</b><b class="k2">22</b><b class="k2">3a</b><b class="k2">22</b><b class="k2">49</b><b class="k2">33</b><b class="k2">32</b><b class="k2">22</b><b class="k2">2c</b><b class="k2">22</b><u>{&quot;dtype&quot;:&quot;I32&quot;,&quot;</u></div>
+<div><i>000020</i><b class="k2">73</b><b class="k2">68</b><b class="k2">61</b><b class="k2">70</b><b class="k2">65</b><b class="k2">22</b><b class="k2">3a</b><b class="k2">5b</b><b class="k2">32</b><b class="k2">2c</b><b class="k2">32</b><b class="k2">5d</b><b class="k2">2c</b><b class="k2">22</b><b class="k2">64</b><b class="k2">61</b><u>shape&quot;:[2,2],&quot;da</u></div>
+<div><i>000030</i><b class="k2">74</b><b class="k2">61</b><b class="k2">5f</b><b class="k2">6f</b><b class="k2">66</b><b class="k2">66</b><b class="k2">73</b><b class="k2">65</b><b class="k2">74</b><b class="k2">73</b><b class="k2">22</b><b class="k2">3a</b><b class="k2">5b</b><b class="k2">30</b><b class="k2">2c</b><b class="k2">31</b><u>ta_offsets&quot;:[0,1</u></div>
+<div><i>000040</i><b class="k2">36</b><b class="k2">5d</b><b class="k2">7d</b><b class="k2">7d</b><b class="k0">20</b><b class="k0">20</b><b class="k0">20</b><b class="k0">20</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="k4">01</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><u>6]}}    ········</u></div>
+<div><i>000050</i><b class="k4">02</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="k4">03</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><u>········        </u></div>
+</div>
+<div class="legend"><span class="k1">length N [0, 8)</span><span class="k2">JSON [8, 68)</span><span class="k0">padding [68, 72)</span><span class="k4">data [72, 88)</span></div>
+<figcaption><b>The whole file is five and a half rows.</b> Every byte of <code>tiny.safetensors</code>, coloured by region. The last row is short because the file ends at offset 88 (0x58).</figcaption>
+</figure>
+
+<h2>Step by step</h2>
+<ol>
+<li><b>Length.</b> Bytes [0, 8) are <code>40 00 00 00 00 00 00 00</code>. Little-endian, that is 0x40 = 64. So <code>N</code> = 64 and the header is [8, 72).</li>
+<li><b>Header text.</b> Bytes [8, 72) are ASCII: <code>{"test":{"dtype":"I32","shape":[2,2],"data_offsets":[0,16]}}</code> followed by four <code>20</code> bytes. The JSON is 60 bytes; 60 is not a multiple of 8, the next multiple is 64, so the writer added 4 spaces.</li>
+<li><b>Entry.</b> One key, <code>test</code>. Its dtype <code>I32</code> is 32 bits per element. Its shape [2, 2] has 2 × 2 = 4 elements. 4 × 32 bits = 128 bits = 16 bytes. Its <code>data_offsets</code> are [0, 16), and 16 − 0 = 16. The declared range and the computed size agree.</li>
+<li><b>Absolute position.</b> Offsets are relative to the data section, which starts at 8 + 64 = 72. The tensor is at [72 + 0, 72 + 16) = [72, 88).</li>
+<li><b>Coverage.</b> The last tensor ends at relative offset 16. 8 + 64 + 16 = 88, which is the file size. Nothing is left over.</li>
+</ol>
+
+<figure class="fig" id="fig-tiny-decode" data-title="Decoding the data" data-tag="cells · tiny.safetensors [72, 88)">
+<div class="cells"><span class="lbl">offset</span><b>72</b><b>73</b><b>74</b><b>75</b><span class="sp"></span><b>76</b><b>77</b><b>78</b><b>79</b><span class="sp"></span><b>80</b><b>81</b><b>82</b><b>83</b><span class="sp"></span><b>84</b><b>85</b><b>86</b><b>87</b></div>
+<div class="cells"><span class="lbl">byte</span><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><span class="sp"></span><b class="k4">01</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><span class="sp"></span><b class="k4">02</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><span class="sp"></span><b class="k4">03</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b></div>
+<div class="cells"><span class="lbl">value</span><b style="min-width:73.2pt">0</b><span class="sp"></span><b style="min-width:73.2pt">1</b><span class="sp"></span><b style="min-width:73.2pt">2</b><span class="sp"></span><b style="min-width:73.2pt">3</b></div>
+<div class="cells"><span class="lbl">index</span><b style="min-width:73.2pt">[0, 0]</b><span class="sp"></span><b style="min-width:73.2pt">[0, 1]</b><span class="sp"></span><b style="min-width:73.2pt">[1, 0]</b><span class="sp"></span><b style="min-width:73.2pt">[1, 1]</b></div>
+<figcaption><b>Sixteen bytes are four little-endian int32 values in row-major order.</b> The last index varies fastest: [0, 0], [0, 1], [1, 0], [1, 1]. The tensor is [[0, 1], [2, 3]].</figcaption>
+</figure>
+
+<h2>Checking the decode</h2>
+<p>The independent parser and the reference library give the same answer:</p>
+<pre class="term">$ python3 research/parse.py research/specimens/tiny.safetensors</pre>
+<pre class="out">file_size=88 N=64 json_len=60 pad=4 data_start=72 data_len=16
+  test    I32   [2, 2]    rel [0, 16)  abs [72, 88)    16 B</pre>
+<pre class="listing" data-name="check_tiny.py" data-src="written for this manual; the same calls run in research/behaviours.py §3–4" data-lang="python">
+from safetensors import safe_open
+with safe_open("research/specimens/tiny.safetensors", framework="np") as f:
+    print(f.get_tensor_meta("test"), f.get_tensor("test").tolist())
+# TensorMeta { dtype: "I32", shape: [2, 2], data_offsets: (0, 16) } [[0, 1], [2, 3]]
+</pre>
+
+<p>The same file appears in the crate's own documentation with a different padding. The doc-test for <code>SafeTensors::deserialize</code> builds its input as <code>b"&lt;\x00\x00\x00\x00\x00\x00\x00{\"test\":{…}}"</code> <span class="src">tensor.rs:437</span>: <code>&lt;</code> is 0x3C = 60, so that header is 60 bytes with no padding, and the reader accepts it. How the writer orders and pads explains why the writer's own output has the four spaces.</p>
+
+<p class="sources">research/specimens/tiny.safetensors; research/make_specimens.py; research/parse.py; research/out/parse.txt; research/gen_figs.py hexdump(); safetensors/src/tensor.rs deserialize doc-test (:430–445), prepare (:253–255); bindings/python/src/lib.rs get_tensor_meta (:1632–1641)</p>
+</section>

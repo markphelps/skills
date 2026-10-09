@@ -1,0 +1,94 @@
+== specimens/big.safetensors
+file_size=268436712 N=1248 json_len=1247 pad=1 data_start=1256 data_len=268435456
+metadata: None
+header key order: ['w00', 'w01', 'w02', 'w03', 'w04', 'w05', 'w06', 'w07', 'w08', 'w09', 'w10', 'w11'] ...
+  w00                                F32   [4096, 1024]   rel [         0,  16777216)  abs [      1256,  16778472)    16777216 B
+  w01                                F32   [4096, 1024]   rel [  16777216,  33554432)  abs [  16778472,  33555688)    16777216 B
+  w02                                F32   [4096, 1024]   rel [  33554432,  50331648)  abs [  33555688,  50332904)    16777216 B
+  w03                                F32   [4096, 1024]   rel [  50331648,  67108864)  abs [  50332904,  67110120)    16777216 B
+  w04                                F32   [4096, 1024]   rel [  67108864,  83886080)  abs [  67110120,  83887336)    16777216 B
+  w05                                F32   [4096, 1024]   rel [  83886080, 100663296)  abs [  83887336, 100664552)    16777216 B
+  w06                                F32   [4096, 1024]   rel [ 100663296, 117440512)  abs [ 100664552, 117441768)    16777216 B
+  w07                                F32   [4096, 1024]   rel [ 117440512, 134217728)  abs [ 117441768, 134218984)    16777216 B
+  w08                                F32   [4096, 1024]   rel [ 134217728, 150994944)  abs [ 134218984, 150996200)    16777216 B
+  w09                                F32   [4096, 1024]   rel [ 150994944, 167772160)  abs [ 150996200, 167773416)    16777216 B
+  w10                                F32   [4096, 1024]   rel [ 167772160, 184549376)  abs [ 167773416, 184550632)    16777216 B
+  w11                                F32   [4096, 1024]   rel [ 184549376, 201326592)  abs [ 184550632, 201327848)    16777216 B
+  w12                                F32   [4096, 1024]   rel [ 201326592, 218103808)  abs [ 201327848, 218105064)    16777216 B
+  w13                                F32   [4096, 1024]   rel [ 218103808, 234881024)  abs [ 218105064, 234882280)    16777216 B
+  w14                                F32   [4096, 1024]   rel [ 234881024, 251658240)  abs [ 234882280, 251659496)    16777216 B
+  w15                                F32   [4096, 1024]   rel [ 251658240, 268435456)  abs [ 251659496, 268436712)    16777216 B
+== specimens/mixed.safetensors
+file_size=612 N=520 json_len=520 pad=0 data_start=528 data_len=84
+metadata: {'note': 'specimen', 'format': 'np'}
+header key order: ['ids', 'alpha', 'bias', 'empty', 'scalar', 'half', 'bytes', 'mask'] 
+  ids                                I64   [3]            rel [         0,        24)  abs [       528,       552)          24 B
+  alpha                              F64   [2, 2]         rel [        24,        56)  abs [       552,       584)          32 B
+  bias                               F32   [3]            rel [        56,        68)  abs [       584,       596)          12 B
+  empty                              F32   [0, 4]         rel [        68,        68)  abs [       596,       596)           0 B
+  scalar                             F32   []             rel [        68,        72)  abs [       596,       600)           4 B
+  half                               F16   [2]            rel [        72,        76)  abs [       600,       604)           4 B
+  bytes                              U8    [3]            rel [        76,        79)  abs [       604,       607)           3 B
+  mask                               BOOL  [5]            rel [        79,        84)  abs [       607,       612)           5 B
+== specimens/mlp.safetensors
+file_size=2086592 N=648 json_len=642 pad=6 data_start=656 data_len=2085936
+metadata: {'format': 'np'}
+header key order: ['step', 'embed.weight', 'head.bias', 'head.weight', 'layer.0.bias', 'layer.0.weight', 'layer.1.bias', 'layer.1.weight'] 
+  step                               I64   []             rel [         0,         8)  abs [       656,       664)           8 B
+  embed.weight                       F32   [1000, 256]    rel [         8,   1024008)  abs [       664,   1024664)     1024000 B
+  head.bias                          F32   [10]           rel [   1024008,   1024048)  abs [   1024664,   1024704)          40 B
+  head.weight                        F32   [10, 256]      rel [   1024048,   1034288)  abs [   1024704,   1034944)       10240 B
+  layer.0.bias                       F32   [512]          rel [   1034288,   1036336)  abs [   1034944,   1036992)        2048 B
+  layer.0.weight                     F32   [512, 256]     rel [   1036336,   1560624)  abs [   1036992,   1561280)      524288 B
+  layer.1.bias                       F32   [256]          rel [   1560624,   1561648)  abs [   1561280,   1562304)        1024 B
+  layer.1.weight                     F32   [256, 512]     rel [   1561648,   2085936)  abs [   1562304,   2086592)      524288 B
+== specimens/tiny.safetensors
+file_size=88 N=64 json_len=60 pad=4 data_start=72 data_len=16
+metadata: None
+header key order: ['test'] 
+  test                               I32   [2, 2]         rel [         0,        16)  abs [        72,        88)          16 B
+== specimens/wide.safetensors
+file_size=69328 N=18120 json_len=18113 pad=7 data_start=18128 data_len=51200
+metadata: None
+header key order: ['blocks.000.attn.q_proj.weight', 'blocks.001.attn.q_proj.weight', 'blocks.002.attn.q_proj.weight', 'blocks.003.attn.q_proj.weight', 'blocks.004.attn.q_proj.weight', 'blocks.005.attn.q_proj.weight', 'blocks.006.attn.q_proj.weight', 'blocks.007.attn.q_proj.weight', 'blocks.008.attn.q_proj.weight', 'blocks.009.attn.q_proj.weight', 'blocks.010.attn.q_proj.weight', 'blocks.011.attn.q_proj.weight'] ...
+  blocks.000.attn.q_proj.weight      F32   [8, 8]         rel [         0,       256)  abs [     18128,     18384)         256 B
+  blocks.001.attn.q_proj.weight      F32   [8, 8]         rel [       256,       512)  abs [     18384,     18640)         256 B
+  blocks.002.attn.q_proj.weight      F32   [8, 8]         rel [       512,       768)  abs [     18640,     18896)         256 B
+  blocks.003.attn.q_proj.weight      F32   [8, 8]         rel [       768,      1024)  abs [     18896,     19152)         256 B
+  blocks.004.attn.q_proj.weight      F32   [8, 8]         rel [      1024,      1280)  abs [     19152,     19408)         256 B
+  blocks.005.attn.q_proj.weight      F32   [8, 8]         rel [      1280,      1536)  abs [     19408,     19664)         256 B
+  blocks.006.attn.q_proj.weight      F32   [8, 8]         rel [      1536,      1792)  abs [     19664,     19920)         256 B
+  blocks.007.attn.q_proj.weight      F32   [8, 8]         rel [      1792,      2048)  abs [     19920,     20176)         256 B
+  blocks.008.attn.q_proj.weight      F32   [8, 8]         rel [      2048,      2304)  abs [     20176,     20432)         256 B
+  blocks.009.attn.q_proj.weight      F32   [8, 8]         rel [      2304,      2560)  abs [     20432,     20688)         256 B
+  blocks.010.attn.q_proj.weight      F32   [8, 8]         rel [      2560,      2816)  abs [     20688,     20944)         256 B
+  blocks.011.attn.q_proj.weight      F32   [8, 8]         rel [      2816,      3072)  abs [     20944,     21200)         256 B
+  blocks.012.attn.q_proj.weight      F32   [8, 8]         rel [      3072,      3328)  abs [     21200,     21456)         256 B
+  blocks.013.attn.q_proj.weight      F32   [8, 8]         rel [      3328,      3584)  abs [     21456,     21712)         256 B
+  blocks.014.attn.q_proj.weight      F32   [8, 8]         rel [      3584,      3840)  abs [     21712,     21968)         256 B
+  blocks.015.attn.q_proj.weight      F32   [8, 8]         rel [      3840,      4096)  abs [     21968,     22224)         256 B
+  blocks.016.attn.q_proj.weight      F32   [8, 8]         rel [      4096,      4352)  abs [     22224,     22480)         256 B
+  blocks.017.attn.q_proj.weight      F32   [8, 8]         rel [      4352,      4608)  abs [     22480,     22736)         256 B
+  blocks.018.attn.q_proj.weight      F32   [8, 8]         rel [      4608,      4864)  abs [     22736,     22992)         256 B
+  blocks.019.attn.q_proj.weight      F32   [8, 8]         rel [      4864,      5120)  abs [     22992,     23248)         256 B
+  blocks.020.attn.q_proj.weight      F32   [8, 8]         rel [      5120,      5376)  abs [     23248,     23504)         256 B
+  blocks.021.attn.q_proj.weight      F32   [8, 8]         rel [      5376,      5632)  abs [     23504,     23760)         256 B
+  blocks.022.attn.q_proj.weight      F32   [8, 8]         rel [      5632,      5888)  abs [     23760,     24016)         256 B
+  blocks.023.attn.q_proj.weight      F32   [8, 8]         rel [      5888,      6144)  abs [     24016,     24272)         256 B
+  blocks.024.attn.q_proj.weight      F32   [8, 8]         rel [      6144,      6400)  abs [     24272,     24528)         256 B
+  blocks.025.attn.q_proj.weight      F32   [8, 8]         rel [      6400,      6656)  abs [     24528,     24784)         256 B
+  blocks.026.attn.q_proj.weight      F32   [8, 8]         rel [      6656,      6912)  abs [     24784,     25040)         256 B
+  blocks.027.attn.q_proj.weight      F32   [8, 8]         rel [      6912,      7168)  abs [     25040,     25296)         256 B
+  blocks.028.attn.q_proj.weight      F32   [8, 8]         rel [      7168,      7424)  abs [     25296,     25552)         256 B
+  blocks.029.attn.q_proj.weight      F32   [8, 8]         rel [      7424,      7680)  abs [     25552,     25808)         256 B
+  blocks.030.attn.q_proj.weight      F32   [8, 8]         rel [      7680,      7936)  abs [     25808,     26064)         256 B
+  blocks.031.attn.q_proj.weight      F32   [8, 8]         rel [      7936,      8192)  abs [     26064,     26320)         256 B
+  blocks.032.attn.q_proj.weight      F32   [8, 8]         rel [      8192,      8448)  abs [     26320,     26576)         256 B
+  blocks.033.attn.q_proj.weight      F32   [8, 8]         rel [      8448,      8704)  abs [     26576,     26832)         256 B
+  blocks.034.attn.q_proj.weight      F32   [8, 8]         rel [      8704,      8960)  abs [     26832,     27088)         256 B
+  blocks.035.attn.q_proj.weight      F32   [8, 8]         rel [      8960,      9216)  abs [     27088,     27344)         256 B
+  blocks.036.attn.q_proj.weight      F32   [8, 8]         rel [      9216,      9472)  abs [     27344,     27600)         256 B
+  blocks.037.attn.q_proj.weight      F32   [8, 8]         rel [      9472,      9728)  abs [     27600,     27856)         256 B
+  blocks.038.attn.q_proj.weight      F32   [8, 8]         rel [      9728,      9984)  abs [     27856,     28112)         256 B
+  blocks.039.attn.q_proj.weight      F32   [8, 8]         rel [      9984,     10240)  abs [     28112,     28368)         256 B
+  ... 160 more

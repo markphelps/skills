@@ -4,7 +4,8 @@ Developer workflow skills for repo-facing agent context, GitHub PR follow-up,
 command-line interface design, codebase-grounded landing copy, architecture
 mapping and whiteboard defense, open source release preparation, audits of your
 own agent session logs, agent feature maps, bug-claim verification, decision
-records, and GitHub Actions self-hosted runners.
+records, source-grounded technical manuals, and GitHub Actions self-hosted
+runners.
 
 ## Skill Set
 
@@ -18,6 +19,7 @@ records, and GitHub Actions self-hosted runners.
 | `github-pr-fixup`           | Addresses unresolved GitHub PR review comments and failing CI on the existing source branch.                     | When a user gives you an existing PR URL and wants review feedback or CI failures fixed without a new PR.                                                              |
 | `github-self-hosted-runner` | Installs, registers, verifies, or removes namespaced GitHub Actions self-hosted runners on a Linux host.         | When a user gives a repository or organization URL and wants a persistent runner managed by systemd.                                                                   |
 | `whiteboard`                | Maps architecture and design rationale, then runs whiteboard-defense quizzes.                                    | When the user explicitly invokes `/whiteboard` to map a codebase, explore a region, refresh a map, defend their understanding, or write fixes back to the repo's docs. |
+| `technical-manual`          | Writes a book-length, print-ready PDF manual grounded in a pinned spec, source, and captured bytes.              | When asked for a technical manual, internals guide, or deep dive on how a format, protocol, library, or system works.                                                  |
 | `verify-bug`                | Rules on whether claimed bugs are real via an isolated Prover/Skeptic/Referee hearing.                           | When the user asks whether a bug is real, wants findings or review comments verified, or points at suspected bugs from a map.                                          |
 | `oss-marketing`             | Sharpens README and public-doc positioning for first-time visitors.                                              | When a repo needs launch copy, clearer positioning, or a README that explains what the project is.                                                                     |
 | `oss-repo-readiness`        | Audits and prepares a repo for open source release, focused on developer experience.                             | When making a repo public, writing CONTRIBUTING or issue templates, or running a pre-launch checklist.                                                                 |
@@ -59,6 +61,10 @@ records, and GitHub Actions self-hosted runners.
   recently. Every finding must carry a dated receipt from a real session.
 - Decision records are historical evidence. Preserve IDs, filenames, and past
   decisions; add amendments or superseding records rather than editing history.
+- Technical manuals are renderings of a research folder: pinned sources, capture
+  scripts, and an outline come before prose. Figures are generated from
+  captures, and the kit in `assets/kit/` builds the PDF with Paged.js and a
+  Chromium.
 - Self-hosted runner work is destructive on a live machine. Create one instance
   per registration target, never print or persist the token, and check for
   running jobs before you stop, replace, or remove a runner.

@@ -1,0 +1,38 @@
+{
+  "title": "safetensors",
+  "short": "safetensors",
+  "slug": "safetensors",
+  "edition": "Exemplar excerpt · e246a25 · 2026.10",
+  "description": "A source-grounded guide to the safetensors file format: the eight-byte length, the JSON header, the 22 dtypes, the contiguous data section, what the Rust reader validates and what it does not, and how the Python binding loads, maps and slices tensors.",
+  "author": "Prepared from github.com/huggingface/safetensors at commit e246a25",
+  "theme": {
+    "accent": "#3d7fd6",
+    "accentInk": "#2f4f7a",
+    "dark": "#0e1a2b"
+  },
+  "cover": {
+    "style": "dark",
+    "plate": "cover.html"
+  },
+  "front": "00-how-to-read.html",
+  "parts": [
+    {
+      "title": "The file, byte by byte",
+      "short": "Bytes",
+      "deck": "Every byte of two real files, decoded by hand and checked against the reference reader.",
+      "file": "01-bytes.html"
+    },
+    {
+      "title": "Writing and checking",
+      "short": "Writing",
+      "deck": "The writer sorts, pads and renames. The reader's guarantees are ten refusals in two Rust functions.",
+      "file": "02-writing-checking.html"
+    },
+    {
+      "title": "Reference",
+      "number": "R",
+      "deck": "Tables to keep open while writing a parser.",
+      "file": "r-reference.html"
+    }
+  ]
+}

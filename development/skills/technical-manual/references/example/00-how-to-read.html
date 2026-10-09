@@ -1,0 +1,68 @@
+<div data-title="How to read this book" data-deck="What the book documents, at which commit, from which files, and how a measured number is told apart from a quoted one.">
+
+<p>This book documents the safetensors file format as implemented by <code>github.com/huggingface/safetensors</code> at commit <code>e246a25</code> (22 September 2026, <code>git describe</code> = <code>v0.6.0-87-ge246a25</code>, crate version string <code>0.9.0-dev.0</code>). It covers the three regions of the file, the JSON header, the 22 dtype codes, the writer, the checks in the Rust reader, and the Python binding's loading paths.</p>
+
+<p>It is written for an engineer who has called <code>save_file</code> and <code>load_file</code> from Python and wants to know exactly what is in the file and what a reader refuses. After reading it you can write a parser from the tables in the Reference part, predict the error the reference reader returns for a damaged file, and say how many bytes of memory a given load call occupies.</p>
+
+<h2>How it was made</h2>
+
+<p>Sources were ranked: Rust and Python source at the pinned commit first, then the prose specification in <code>README.md</code>, then <code>docs/safetensors.schema.json</code>, then files on disk, then the project's other documentation. Where two disagree the higher one wins and the text says so. The disagreements are collected in Where README, schema and code disagree.</p>
+
+<p>The reference library used for every experiment is the Python package built from the pinned commit itself (<code>pip install</code> of <code>bindings/python</code>, which reports <code>0.9.0-dev.0</code>), not the 0.8.0 release on PyPI. The commit is 87 commits past the last tag reachable by <code>git describe</code> and contains the <code>pread</code> backend and <code>get_tensor_meta</code>, which the book uses.</p>
+
+<div class="callout experimental" data-label="Specimens are local, not downloaded">
+<p>The machine this book was built on can reach GitHub and PyPI and cannot reach huggingface.co. No published model file was downloaded. Every specimen below was written locally by <code>research/make_specimens.py</code> with the reference library and numpy 2.5.3. Statements about "every specimen" are statements about these five files and about no file on the Hub.</p>
+</div>
+
+<table id="specimens">
+<thead><tr><th>Specimen</th><th class="n">File bytes</th><th class="n">N</th><th class="n">Data bytes</th><th class="n">Tensors</th><th>Why it is here</th></tr></thead>
+<tbody>
+<tr><td class="m">tiny.safetensors</td><td class="n">88</td><td class="n">64</td><td class="n">16</td><td class="n">1</td><td>One <code>I32</code> [2,2]. Small enough to print whole.</td></tr>
+<tr><td class="m">mixed.safetensors</td><td class="n">612</td><td class="n">520</td><td class="n">84</td><td class="n">8</td><td>Six dtypes, a scalar, an empty tensor, two metadata keys.</td></tr>
+<tr><td class="m">wide.safetensors</td><td class="n">69,328</td><td class="n">18,120</td><td class="n">51,200</td><td class="n">200</td><td>Many small tensors with long names: header growth.</td></tr>
+<tr><td class="m">mlp.safetensors</td><td class="n">2,086,592</td><td class="n">648</td><td class="n">2,085,936</td><td class="n">8</td><td>A model-shaped file for slicing and lazy loading.</td></tr>
+<tr><td class="m">big.safetensors</td><td class="n">268,436,712</td><td class="n">1,248</td><td class="n">268,435,456</td><td class="n">16</td><td>256 MiB of <code>F32</code> for timings and memory.</td></tr>
+</tbody></table>
+<p class="note"><b>Five locally written files recur through the book.</b> Sizes are from <code>research/parse.py</code>, a parser that imports only <code>struct</code> and <code>json</code>; <code>research/behaviours.py</code> §4 confirms that parser and the reference library agree on all 233 tensors byte for byte.</p>
+
+<p>Every number in the book is printed by a script under <code>research/</code>, and the output is saved in <code>research/out/</code>. <code>malformed.py</code> builds 54 files by hand and records what the reader returns for each. <code>measure.py</code> produces the timings and peak-memory figures.</p>
+
+<h2>Conventions</h2>
+
+<div class="items">
+<p><b>Offsets.</b> Decimal in prose and tables, counted from byte 0 of the file unless called <i>relative</i>, in which case they count from the first byte of the data section. Hex dumps label rows in hexadecimal. A range written [a, b) includes a and excludes b.</p>
+<p><b>Units.</b> B is bytes. MiB is 2<sup>20</sup> bytes. MB, where the source uses it, is quoted as the source wrote it; the header limit in code is the decimal number 100,000,000.</p>
+<p><b>Names.</b> <code>N</code> is the value of the first eight bytes. Type codes are written as they appear in the file: <code>F32</code>, <code>BOOL</code>. Source locations look like <span class="src">tensor.rs:402</span> and always refer to commit <code>e246a25</code>; <code>tensor.rs</code> means <code>safetensors/src/tensor.rs</code> and <code>lib.rs</code> means <code>bindings/python/src/lib.rs</code>.</p>
+<p><b>Kinds of fact.</b> "The README says" and "the schema says" quote a document. "The reader checks" cites code. "Measured" means a script in <code>research/</code> printed the number on the build machine (Linux 6.18, x86-64, 2 CPUs, CPython 3.13.16). Figures carry the same word in their tag. Paths that were read but not run are labelled <i>from source, not run</i>.</p>
+<p><b>Cross-references.</b> A reference to another section prints its page; a reference to a figure prints its number.</p>
+</div>
+
+<h2>The colour code</h2>
+
+<p>One colour means one thing in every figure.</p>
+
+<div class="swatches">
+<div class="k1"><b>k1</b>the 8-byte length N</div>
+<div class="k2"><b>k2</b>JSON header: tensor entries</div>
+<div class="k3"><b>k3</b><code>__metadata__</code></div>
+<div class="k4"><b>k4</b>tensor data</div>
+<div class="k5"><b>k5</b>rejected by the reader</div>
+<div class="k6"><b>k6</b>accepted by the reader</div>
+<div class="k7"><b>k7</b>memory the loader allocates</div>
+<div class="k0"><b>k0</b>padding, elided or unused</div>
+</div>
+
+<h2>How the parts are ordered</h2>
+
+<div class="items">
+<p><b>1 Orientation.</b> The three regions, the reason the format exists, and which description of it is authoritative.</p>
+<p><b>2 The file, byte by byte.</b> The length prefix and the data section, with two files decoded by hand.</p>
+<p><b>3 The JSON header.</b> Tensor entries, <code>__metadata__</code>, the JSON dialect, header size.</p>
+<p><b>4 Tensors and dtypes.</b> The 22 codes, byte and element order, shapes.</p>
+<p><b>5 How files are written.</b> Sort order, padding, the atomic rename, and what the numpy front end does not check.</p>
+<p><b>6 What readers check.</b> <code>read_metadata</code> and <code>validate</code> line by line, 54 hand-built files, and what is left unchecked.</p>
+<p><b>7 Loading in practice.</b> <code>safe_open</code>, copies, the two backends, slicing, the torch paths, and reading a header remotely.</p>
+<p><b>R Reference.</b> Layout, errors, API, glossary, sources, and the list of what was not verified.</p>
+</div>
+
+</div>

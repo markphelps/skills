@@ -1,0 +1,177 @@
+<section class="sec" id="save-file" data-title="save_file writes a sibling temp file and renames it"
+  data-deck="The file is built under a temporary name in the destination directory, sized in advance, written through a 1 MiB buffer and renamed into place. The path gets a new inode and, on the build machine, mode 0600.">
+<p>This section follows <code>serialize_to_file</code> from the prepared header to the rename, then reports two observable effects.</p>
+
+<pre class="listing" data-name="buffered_write_to_file" data-src="safetensors/src/tensor.rs:309–315, 326–341 @ e246a25" data-lang="rust">
+    let path = path.as_ref();
+    // Write to a sibling tempfile then rename, so an existing `path` is never
+    // truncated under any mmap of it (e.g. tensors returned by `load_file`).
+    let parent = path.parent().unwrap_or_else(|| Path::new("."));
+    let temp = tempfile::NamedTempFile::new_in(parent)?;
+
+    temp.as_file().set_len(total_size as u64)?;
+    …
+    {
+        let mut f = std::io::BufWriter::with_capacity(1024 * 1024, temp.as_file());
+
+        f.write_all(n.to_le_bytes().as_ref())?;
+        f.write_all(header_bytes)?;
+
+        for tensor in tensors {
+            f.write_all(tensor.data().as_ref())?;
+        }
+
+        f.flush()?;
+    }
+
+    temp.persist(path).map_err(|e| e.error)?;
+
+    Ok(())
+</pre>
+<p class="note">Lines 316–325 are cut: a macOS-only block that sets <code>F_NOCACHE</code> on the temp file, with the comment "This yields ~30% performance improvement" (the project's figure, not measured here).</p>
+
+<h2>Why a rename</h2>
+<p>The comment gives the reason: "Write to a sibling tempfile then rename, so an existing <code>path</code> is never truncated under any mmap of it (e.g. tensors returned by <code>load_file</code>)." <span class="src">tensor.rs:310–311</span>. A process that has the old file mapped keeps the old inode and its bytes; the new content is a different file under the same name. Truncating in place would instead change the pages under a live mapping.</p>
+
+<h2>The sequence</h2>
+<figure class="fig" id="fig-save-seq" data-title="serialize_to_file" data-tag="sequence · tensor.rs:302–377">
+<svg viewBox="0 0 640 214">
+  <rect class="box" x="60" y="8" width="130" height="24"/><text x="125" y="24" text-anchor="middle">serialize_to_file</text>
+  <rect class="box" x="290" y="8" width="130" height="24"/><text x="355" y="24" text-anchor="middle">temp file (same dir)</text>
+  <rect class="box" x="500" y="8" width="130" height="24"/><text x="565" y="24" text-anchor="middle">destination path</text>
+  <path class="ln dash" d="M125 32 V 206"/><path class="ln dash" d="M355 32 V 206"/><path class="ln dash" d="M565 32 V 206"/>
+  <circle class="box" cx="22" cy="56" r="8"/><text x="22" y="59.5" text-anchor="middle" class="m">1</text>
+  <path class="arrow" d="M125 50 h 22 v 12 h -20"/>
+  <text x="154" y="59" class="s">prepare(): sort, offsets, JSON, pad</text>
+  <circle class="box" cx="22" cy="92" r="8"/><text x="22" y="95.5" text-anchor="middle" class="m">2</text>
+  <path class="arrow" d="M125 92 H 353"/><text x="240" y="87" text-anchor="middle">NamedTempFile::new_in(parent)</text><text x="240" y="104" text-anchor="middle" class="s">then set_len(8 + N + data bytes)</text>
+  <circle class="box" cx="22" cy="130" r="8"/><text x="22" y="133.5" text-anchor="middle" class="m">3</text>
+  <path class="arrow" d="M125 130 H 353"/><text x="240" y="125" text-anchor="middle">write N, header, each tensor.data()</text><text x="240" y="142" text-anchor="middle" class="s">BufWriter, capacity 1,048,576 B; flush</text>
+  <circle class="box" cx="22" cy="170" r="8"/><text x="22" y="173.5" text-anchor="middle" class="m">4</text>
+  <path class="arrow" d="M355 170 H 563"/><text x="460" y="165" text-anchor="middle">persist(path): rename</text><text x="460" y="182" text-anchor="middle" class="s">an existing file is replaced, not truncated</text>
+</svg>
+<figcaption><b>The destination path is touched once, by a rename.</b> Steps 2 to 4 are <code>buffered_write_to_file</code>. Tensor bytes are written in the order <code>prepare</code> chose, one <code>write_all</code> per tensor.</figcaption>
+</figure>
+
+<h2>Measured effects</h2>
+<div class="items">
+<p><b>The inode changes.</b> Saving twice to the same path gave two different <code>st_ino</code> values, and the directory held no leftover temp file afterwards (<code>research/behaviours.py</code> §8).</p>
+<p><b>The mode was 0600.</b> The saved file had permission bits <code>0o600</code> on the build machine. The temp file is created by the <code>tempfile</code> crate and the rename keeps its mode; nothing in <code>buffered_write_to_file</code> sets one. Whether the process umask is consulted was not investigated.</p>
+<p><b>The whole size is reserved first.</b> <code>set_len(total_size)</code> runs before any byte is written. A crash mid-write leaves a temp file, not a short destination.</p>
+</div>
+
+
+<h2>The in-memory path</h2>
+<p><code>serialize</code>, which backs <code>save()</code>, builds a <code>Vec&lt;u8&gt;</code> with capacity 8 + header + data and extends it with each tensor <span class="src">tensor.rs:289–296</span>. The Python wrapper then copies it into a <code>bytes</code> object <span class="src">lib.rs:222</span> and the numpy front end calls <code>bytes()</code> on that again <span class="src">numpy.py:56–57</span>.</p>
+
+<p class="sources">safetensors/src/tensor.rs serialize (:268–299), buffered_write_to_file (:302–342), serialize_to_file (:348–377); bindings/python/src/lib.rs serialize (:209–224), serialize_file (:249–265); bindings/python/py_src/safetensors/numpy.py save (:55–58); research/behaviours.py §8; research/out/behaviours.txt</p>
+</section>
+
+<section class="sec" id="check-order" data-title="The checks, in order"
+  data-deck="read_metadata makes ten tests and one sort in a fixed sequence and returns one of ten errors at the first test that fails. It needs the whole buffer's length but reads only the first 8 + N bytes.">
+<p>This section gives the sequence as a diagram, then the function it was drawn from. The four per-tensor tests are examined in the next section.</p>
+
+<figure class="fig" id="fig-check-order" data-title="read_metadata" data-tag="boxes · tensor.rs:390–425 and :627–664">
+<svg viewBox="0 0 640 359">
+<circle class="box" cx="18" cy="20" r="8"/><text x="18" y="23.5" text-anchor="middle" class="m">1</text>
+<rect class="k1" x="34" y="8" width="262" height="24"/><text x="42" y="23.5">buffer.len() ≥ 8</text>
+<path class="arrow" d="M296 20 H 338"/><text class="s" x="317" y="16" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="8" width="292" height="24"/><text class="m t5" x="348" y="18.5">HeaderTooSmall</text><text class="s" x="348" y="28.5">header too small</text>
+<circle class="box" cx="18" cy="49" r="8"/><text x="18" y="52.5" text-anchor="middle" class="m">2</text>
+<rect class="k1" x="34" y="37" width="262" height="24"/><text x="42" y="52.5">N fits a usize and N ≤ 100,000,000</text>
+<path class="arrow" d="M296 49 H 338"/><text class="s" x="317" y="45" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="37" width="292" height="24"/><text class="m t5" x="348" y="47.5">HeaderTooLarge</text><text class="s" x="348" y="57.5">header too large</text>
+<circle class="box" cx="18" cy="78" r="8"/><text x="18" y="81.5" text-anchor="middle" class="m">3</text>
+<rect class="k1" x="34" y="66" width="262" height="24"/><text x="42" y="81.5">N + 8 does not overflow and is ≤ buffer.len()</text>
+<path class="arrow" d="M296 78 H 338"/><text class="s" x="317" y="74" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="66" width="292" height="24"/><text class="m t5" x="348" y="76.5">InvalidHeaderLength</text><text class="s" x="348" y="86.5">invalid header length</text>
+<circle class="box" cx="18" cy="107" r="8"/><text x="18" y="110.5" text-anchor="middle" class="m">4</text>
+<rect class="k2" x="34" y="95" width="262" height="24"/><text x="42" y="110.5">bytes [8, 8 + N) are valid UTF-8</text>
+<path class="arrow" d="M296 107 H 338"/><text class="s" x="317" y="103" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="95" width="292" height="24"/><text class="m t5" x="348" y="105.5">InvalidHeader</text><text class="s" x="348" y="115.5">invalid UTF-8 in header: …</text>
+<circle class="box" cx="18" cy="136" r="8"/><text x="18" y="139.5" text-anchor="middle" class="m">5</text>
+<rect class="k2" x="34" y="124" width="262" height="24"/><text x="42" y="139.5">serde_json parses them into HashMetadata</text>
+<path class="arrow" d="M296 136 H 338"/><text class="s" x="317" y="132" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="124" width="292" height="24"/><text class="m t5" x="348" y="134.5">InvalidHeaderDeserialization</text><text class="s" x="348" y="144.5">invalid JSON in header: …</text>
+<circle class="box" cx="18" cy="165" r="8"/><text x="18" y="168.5" text-anchor="middle" class="m">6</text>
+<rect class="box" x="34" y="153" width="262" height="24"/><text x="42" y="168.5">sort entries by (begin, end)</text>
+<text class="s" x="340" y="168.5">cannot fail; entries may be listed in any order</text>
+<circle class="box" cx="18" cy="194" r="8"/><text x="18" y="197.5" text-anchor="middle" class="m">7</text>
+<rect class="k4" x="34" y="182" width="262" height="24"/><text x="42" y="197.5">begin == previous end, and end ≥ begin</text>
+<path class="arrow" d="M296 194 H 338"/><text class="s" x="317" y="190" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="182" width="292" height="24"/><text class="m t5" x="348" y="192.5">InvalidOffset(name)</text><text class="s" x="348" y="202.5">invalid offset for tensor `name`</text>
+<circle class="box" cx="18" cy="223" r="8"/><text x="18" y="226.5" text-anchor="middle" class="m">8</text>
+<rect class="k4" x="34" y="211" width="262" height="24"/><text x="42" y="226.5">product(shape) × bitsize, checked multiply</text>
+<path class="arrow" d="M296 223 H 338"/><text class="s" x="317" y="219" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="211" width="292" height="24"/><text class="m t5" x="348" y="221.5">ValidationOverflow</text><text class="s" x="348" y="231.5">overflow computing buffer size …</text>
+<circle class="box" cx="18" cy="252" r="8"/><text x="18" y="255.5" text-anchor="middle" class="m">9</text>
+<rect class="k4" x="34" y="240" width="262" height="24"/><text x="42" y="255.5">bit count is a multiple of 8</text>
+<path class="arrow" d="M296 252 H 338"/><text class="s" x="317" y="248" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="240" width="292" height="24"/><text class="m t5" x="348" y="250.5">MisalignedSlice</text><text class="s" x="348" y="260.5">The slice is slicing for subbytes …</text>
+<circle class="box" cx="18" cy="281" r="8"/><text x="18" y="284.5" text-anchor="middle" class="m">10</text>
+<rect class="k4" x="34" y="269" width="262" height="24"/><text x="42" y="284.5">end − begin == bit count ÷ 8</text>
+<path class="arrow" d="M296 281 H 338"/><text class="s" x="317" y="277" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="269" width="292" height="24"/><text class="m t5" x="348" y="279.5">TensorInvalidInfo</text><text class="s" x="348" y="289.5">invalid shape, data type, or offset …</text>
+<circle class="box" cx="18" cy="310" r="8"/><text x="18" y="313.5" text-anchor="middle" class="m">11</text>
+<rect class="k4" x="34" y="298" width="262" height="24"/><text x="42" y="313.5">last end + 8 + N == buffer.len()</text>
+<path class="arrow" d="M296 310 H 338"/><text class="s" x="317" y="306" text-anchor="middle">no</text>
+<rect class="k5" x="340" y="298" width="292" height="24"/><text class="m t5" x="348" y="308.5">MetadataIncompleteBuffer</text><text class="s" x="348" y="318.5">incomplete metadata, file not fully …</text>
+<path class="ln dash" d="M8 182 H 4 V 293 H 8"/>
+<rect class="k6" x="34" y="327" width="262" height="24"/><text class="t6" x="42" y="342.5">return (N, Metadata)</text>
+</svg>
+<div class="legend"><span class="k1">tests on N</span><span class="k2">tests on the header text</span><span class="k4">tests on offsets against the data section</span><span class="k5">rejected</span><span class="k6">accepted</span></div>
+<div class="fig-note">Steps 7 to 10 run once per tensor, in offset order, and the whole loop runs twice (see below). The first failing tensor decides the error.</div>
+<figcaption><b>Every refusal happens before a single tensor byte is read.</b> Each box on the left is a condition that must hold; each box on the right is the <code>SafeTensorError</code> variant and the start of its message. Colours follow the region each test concerns.</figcaption>
+</figure>
+
+<h2>Four variants the read path never returns</h2>
+<p>The enum has 14 variants. <code>TensorNotFound</code> comes from <code>SafeTensors::tensor(name)</code>, <code>InvalidTensorView</code> from <code>TensorView::new</code>, and <code>IoError</code> and <code>JsonError</code> from the writer. The full table is in Errors.</p>
+
+<pre class="listing" data-name="read_metadata" data-src="safetensors/src/tensor.rs:390–425 @ e246a25" data-lang="rust">
+    pub fn read_metadata(buffer: &amp;'data [u8]) -&gt; Result&lt;(usize, Metadata), SafeTensorError&gt; {
+        let buffer_len = buffer.len();
+        let Some(header_size_bytes) = buffer.get(..N_LEN) else {
+            return Err(SafeTensorError::HeaderTooSmall);
+        };
+        let arr: [u8; N_LEN] = header_size_bytes
+            .try_into()
+            .expect("this can't fail due to how `header_size_bytes` is defined above");
+        let n: usize = u64::from_le_bytes(arr)
+            .try_into()
+            .map_err(|_| SafeTensorError::HeaderTooLarge)?;
+
+        if n &gt; MAX_HEADER_SIZE {
+            return Err(SafeTensorError::HeaderTooLarge);
+        }
+
+        let stop = n
+            .checked_add(N_LEN)
+            .ok_or(SafeTensorError::InvalidHeaderLength)?;
+
+        // the `.get(start..stop)` returns None if either index is out of bounds,
+        // so this implicitly also ensures that `stop &lt;= buffer.len()`.
+        let Some(header_bytes) = buffer.get(N_LEN..stop) else {
+            return Err(SafeTensorError::InvalidHeaderLength);
+        };
+        let string = core::str::from_utf8(header_bytes).map_err(SafeTensorError::InvalidHeader)?;
+        let metadata: HashMetadata =
+            serde_json::from_str(string).map_err(SafeTensorError::InvalidHeaderDeserialization)?;
+        let metadata: Metadata = metadata.try_into()?;
+        let buffer_end = metadata.validate()?;
+        if buffer_end + N_LEN + n != buffer_len {
+            return Err(SafeTensorError::MetadataIncompleteBuffer);
+        }
+
+        Ok((n, metadata))
+    }
+</pre>
+
+<h2>Reading the listing</h2>
+<div class="items">
+<p><b>The buffer is the whole file.</b> The function takes <code>&amp;[u8]</code>. <code>safe_open</code> passes a memory map of the entire file <span class="src">lib.rs:788–790</span>; <code>load(bytes)</code> passes the caller's bytes. Step 11 needs <code>buffer.len()</code>, so a reader holding only the first 8 + <code>N</code> bytes cannot call this function as it stands.</p>
+<p><b>Only the header is touched.</b> Nothing after offset 8 + <code>N</code> is dereferenced. With a memory map, the data pages are never faulted in by validation.</p>
+<p><b>Validation runs twice.</b> <code>metadata.try_into()</code> on line 418 calls <code>Metadata::new</code>, which ends with <code>metadata.validate()?</code> <span class="src">tensor.rs:623</span>. Line 419 calls <code>validate()</code> again to obtain <code>buffer_end</code>. The second pass cannot fail if the first passed.</p>
+</div>
+
+<p class="sources">safetensors/src/tensor.rs SafeTensorError (:16–50), read_metadata (:390–425), Metadata::new (:603–625), validate (:627–664); bindings/python/src/lib.rs Open::new (:786–794), deserialize (:281–283); research/out/gen_cases.txt</p>
+</section>

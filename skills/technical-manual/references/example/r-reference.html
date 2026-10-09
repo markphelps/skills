@@ -1,0 +1,79 @@
+<section class="sec" id="glossary" data-title="Glossary"
+  data-deck="The vocabulary as this book uses it. Where the source has a name for the thing, that name is used.">
+<p>Terms are listed alphabetically. Each definition says where the term comes from.</p>
+<table>
+<thead><tr><th>Term</th><th>Meaning in this book</th></tr></thead>
+<tbody>
+<tr><td>backend</td><td>How the Python binding obtains tensor bytes: <code>"mmap"</code> or <code>"pread"</code>. Not a property of the file.</td></tr>
+<tr><td>bitsize</td><td>The width of one element in bits, <code>Dtype::bitsize()</code>. 4, 6, 8, 16, 32 or 64.</td></tr>
+<tr><td>byte-buffer</td><td>The README's name for the data section.</td></tr>
+<tr><td>data_offsets</td><td>The pair [begin, end) of a tensor, relative to the first byte of the data section.</td></tr>
+<tr><td>data section</td><td>Everything after byte 8 + <code>N</code>. This book's term; the source calls it <code>data</code> or the byte-buffer.</td></tr>
+<tr><td>dtype code</td><td>The upper-case string in a header entry, such as <code>F32</code>. One of the 22 variants of <code>Dtype</code>.</td></tr>
+<tr><td>empty tensor</td><td>A tensor with a 0 in its shape. It has a header entry and no bytes.</td></tr>
+<tr><td>entry</td><td>One name → {<code>dtype</code>, <code>shape</code>, <code>data_offsets</code>} pair in the header. <code>TensorInfo</code> in the source.</td></tr>
+<tr><td>header</td><td>The <code>N</code> bytes of JSON after the length, including any padding.</td></tr>
+<tr><td>hole</td><td>Data-section bytes covered by no entry. Refused by the reader.</td></tr>
+<tr><td><code>__metadata__</code></td><td>The reserved header key holding a string-to-string map.</td></tr>
+<tr><td><code>N</code></td><td>The value of the first eight bytes: the header length in bytes.</td></tr>
+<tr><td>padding</td><td>The 0 to 7 bytes of 0x20 the writer appends to the JSON so that <code>N</code> is a multiple of 8.</td></tr>
+<tr><td>rank (of a dtype)</td><td>Position of the code in the <code>Dtype</code> enum, 0 to 21. The writer sorts by it, descending. This book's term.</td></tr>
+<tr><td>reader</td><td><code>SafeTensors::read_metadata</code> and <code>Metadata::validate</code> at the pinned commit, however reached.</td></tr>
+<tr><td>relative offset</td><td>An offset counted from 8 + <code>N</code>.</td></tr>
+<tr><td>scalar</td><td>A tensor with shape <code>[]</code> and one element. "0-rank" in the README.</td></tr>
+<tr><td>specimen</td><td>One of the five files tabulated in "How to read this book".</td></tr>
+<tr><td>tiling</td><td>The property that sorted entries cover the data section exactly, with no hole and no overlap. This book's term.</td></tr>
+<tr><td>writer</td><td><code>prepare</code> with <code>serialize</code> or <code>serialize_to_file</code> at the pinned commit.</td></tr>
+</tbody></table>
+<p class="sources">safetensors/src/tensor.rs (names of types and functions); README.md §Format, §Notes; bindings/python/src/lib.rs Backend (:400–409)</p>
+</section>
+
+<section class="sec" id="sources-versions" data-title="Sources and versions"
+  data-deck="Every source with its revision, what it was used for, and the list of what this book does not claim because it was not verified.">
+<p>All repository paths are in <code>github.com/huggingface/safetensors</code> at commit <code>e246a25</code> (<code>e246a2560645b7525f5775669ed816eb57c5bcc8</code>, 22 September 2026), cloned to <code>research/src/</code>.</p>
+
+<figure class="fig" id="fig-sources" data-title="Sources" data-tag="research/SOURCES.md">
+<table class="tight">
+<thead><tr><th>Source</th><th>Revision</th><th>Used for</th></tr></thead>
+<tbody>
+<tr><td class="m">safetensors/src/tensor.rs</td><td class="m">e246a25</td><td>constants, writer, reader, <code>Dtype</code>, errors</td></tr>
+<tr><td class="m">safetensors/src/slice.rs</td><td class="m">e246a25</td><td>slice byte ranges</td></tr>
+<tr><td class="m">bindings/python/src/lib.rs</td><td class="m">e246a25</td><td><code>safe_open</code>, storage variants, backends, dtype names</td></tr>
+<tr><td class="m">bindings/python/src/engine/unix.rs</td><td class="m">e246a25</td><td>prefetch engine comment and constants (read only)</td></tr>
+<tr><td class="m">bindings/python/py_src/safetensors/numpy.py, torch.py</td><td class="m">e246a25</td><td>Python front ends</td></tr>
+<tr><td class="m">README.md</td><td class="m">e246a25</td><td>the prose specification and rationale</td></tr>
+<tr><td class="m">docs/safetensors.schema.json</td><td class="m">e246a25</td><td>the JSON Schema of the header</td></tr>
+<tr><td class="m">docs/source/metadata_parsing.mdx</td><td class="m">e246a25</td><td>HTTP range recipe (quoted)</td></tr>
+<tr><td class="m">attacks/README.md</td><td class="m">e246a25</td><td>the project's abuse proposals</td></tr>
+<tr><td>Python package built from <code>bindings/python</code></td><td class="m">0.9.0-dev.0 @ e246a25</td><td>reference reader and writer in every experiment</td></tr>
+<tr><td>serde_json</td><td class="m">1.0.151</td><td>JSON dialect (from <code>bindings/python/Cargo.lock</code>)</td></tr>
+<tr><td>numpy</td><td class="m">2.5.3</td><td>arrays, specimens</td></tr>
+<tr><td>CPython, OS</td><td class="m">3.13.16, Linux 6.18 x86-64, 2 CPUs</td><td>all measurements</td></tr>
+<tr><td>Rust toolchain</td><td class="m">cargo 1.97.0</td><td>building the binding, <code>cargo test</code>, <code>research/slice_ranges</code></td></tr>
+</tbody></table>
+<figcaption><b>One repository at one commit, plus the toolchain that ran it.</b> The specimen files are in <code>research/specimens/</code>, and every script's saved output in <code>research/out/</code>.</figcaption>
+</figure>
+
+<h2>Not verified, and therefore not claimed</h2>
+<div class="items">
+<p><b>Files from the Hub.</b> No published model was examined. Nothing here says what real checkpoints contain, how large their headers are, or which <code>__metadata__</code> keys they carry.</p>
+<p><b>torch, tensorflow, flax, mlx, paddle.</b> None is installed. Their loading and saving paths are described from source and marked so. Whether torch's CPU path is in fact copy-free, and how it behaves on misaligned tensors, was not observed.</p>
+<p><b>GPU and MPS paths, <code>prefetch</code>.</b> Read only. The project's speed statements about them are quoted as the project's.</p>
+<p><b>Cold-cache and network-filesystem performance.</b> All timings had the file in the page cache on one 2-CPU virtual machine.</p>
+<p><b>Big-endian hosts, 32-bit targets, Windows, macOS, <code>no_std</code>.</b> Behaviour there is inferred from the source where stated and otherwise not discussed.</p>
+<p><b>Other implementations.</b> The JavaScript parser mentioned in the project's documentation and any third-party reader were not examined. "The reader" means the Rust reference only.</p>
+<p><b>Released versions.</b> The book describes commit <code>e246a25</code>. Which behaviours hold in the 0.8.0 wheel or will hold in 0.9.0 was not checked.</p>
+<p><b>Sub-byte element packing.</b> The bit order of two <code>F4</code> elements within a byte, and the encodings of the 4-, 6- and 8-bit float codes, are not defined in the Rust source and are not described here.</p>
+<p><b>File mode under other umasks.</b> The 0600 mode after <code>save_file</code> was observed once, as root, on one filesystem.</p>
+<p><b>Why open time grows faster than linearly past 10,000 tensors.</b> Measured, not explained.</p>
+</div>
+
+<p class="sources">research/SOURCES.md; research/notes.md; research/out/make_specimens.txt; research/out/cargo_test.txt; bindings/python/Cargo.lock; git log -1 and git describe in research/src</p>
+</section>
+
+<section class="sec" id="figure-index" data-title="Index of figures"
+  data-deck="Every figure by number, listed by the finding its caption states.">
+<p>Figures are numbered within parts. Each line is the bold opening sentence of the caption.</p>
+<div data-generate="figure-index"></div>
+<p class="sources">generated by the build from the figure captions of every part</p>
+</section>

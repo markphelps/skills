@@ -1,0 +1,20 @@
+<div class="plate-label">Plate I · tiny.safetensors, all 88 bytes</div>
+<div class="big"><span>40 00 00 00 00 00 00 00</span></div>
+<div class="bigsub">THE FIRST EIGHT BYTES: N = 64, UNSIGNED, LITTLE-ENDIAN. THERE IS NO MAGIC NUMBER.</div>
+<div class="strip"><div class="k1" style="flex:8">N<small>8 B</small></div><div class="k2" style="flex:60">JSON header<small>60 B</small></div><div class="k0" style="flex:4"><small>4</small></div><div class="k4" style="flex:16">data<small>16 B</small></div></div>
+<div class="strip-labels"><span>offset 0</span><span style="text-align:center">drawn to scale</span><span class="r">offset 88 = 8 + N + 16</span></div>
+<div style="height:10pt"></div>
+<div class="hex">
+<div><i>000000</i><b class="k1">40</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k1">00</b><b class="k2">7b</b><b class="k2">22</b><b class="k2">74</b><b class="k2">65</b><b class="k2">73</b><b class="k2">74</b><b class="k2">22</b><b class="k2">3a</b><u>@·······{&quot;test&quot;:</u></div>
+<div><i>000010</i><b class="k2">7b</b><b class="k2">22</b><b class="k2">64</b><b class="k2">74</b><b class="k2">79</b><b class="k2">70</b><b class="k2">65</b><b class="k2">22</b><b class="k2">3a</b><b class="k2">22</b><b class="k2">49</b><b class="k2">33</b><b class="k2">32</b><b class="k2">22</b><b class="k2">2c</b><b class="k2">22</b><u>{&quot;dtype&quot;:&quot;I32&quot;,&quot;</u></div>
+<div><i>000020</i><b class="k2">73</b><b class="k2">68</b><b class="k2">61</b><b class="k2">70</b><b class="k2">65</b><b class="k2">22</b><b class="k2">3a</b><b class="k2">5b</b><b class="k2">32</b><b class="k2">2c</b><b class="k2">32</b><b class="k2">5d</b><b class="k2">2c</b><b class="k2">22</b><b class="k2">64</b><b class="k2">61</b><u>shape&quot;:[2,2],&quot;da</u></div>
+<div><i>000030</i><b class="k2">74</b><b class="k2">61</b><b class="k2">5f</b><b class="k2">6f</b><b class="k2">66</b><b class="k2">66</b><b class="k2">73</b><b class="k2">65</b><b class="k2">74</b><b class="k2">73</b><b class="k2">22</b><b class="k2">3a</b><b class="k2">5b</b><b class="k2">30</b><b class="k2">2c</b><b class="k2">31</b><u>ta_offsets&quot;:[0,1</u></div>
+<div><i>000040</i><b class="k2">36</b><b class="k2">5d</b><b class="k2">7d</b><b class="k2">7d</b><b class="k0">20</b><b class="k0">20</b><b class="k0">20</b><b class="k0">20</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="k4">01</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><u>6]}}    ········</u></div>
+<div><i>000050</i><b class="k4">02</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="k4">03</b><b class="k4">00</b><b class="k4">00</b><b class="k4">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><b class="x">00</b><u>········        </u></div>
+</div>
+<div class="key">
+  <div><b class="k1">1</b>Header length <code>N</code>. The reader refuses <code>N</code> above 100,000,000.</div>
+  <div><b class="k2">2</b>One JSON object: name → <code>dtype</code>, <code>shape</code>, <code>data_offsets</code>.</div>
+  <div><b class="k0">3</b>Four spaces (0x20) pad the header so the data starts on a multiple of 8.</div>
+  <div><b class="k4">4</b>Tensor bytes, little-endian, row-major: the int32 values 0, 1, 2, 3.</div>
+</div>

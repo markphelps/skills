@@ -1,0 +1,10 @@
+/* book-specific CSS: cover-plate type and numbered key. Everything else comes from the kit. */
+.plate .big { font: 500 30pt/1.1 var(--mono); letter-spacing: .02em; color: #f4ece4; margin: 6pt 0 2pt; }
+.plate .big span { color: var(--k1e); }
+.plate .bigsub { font: 7pt var(--mono); letter-spacing: .12em; color: #9fb0c8; margin-bottom: 16pt; }
+.plate .strip > * { border-color: rgba(255,255,255,.35); }
+.plate .strip-labels { color: #9fb0c8; }
+.plate .hex i { color: #8fa0b8; } .plate .hex u { color: #c8d4e4; }
+.plate .key { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt 18pt; margin-top: 14pt; font: 7.4pt/1.4 var(--sans); color: #c8d4e4; }
+.plate .key b { display: inline-block; min-width: 13pt; height: 13pt; line-height: 13pt; text-align: center; border-radius: 50%; font: 500 6.6pt var(--mono); margin-right: 5pt; border: .7pt solid; }
+.plate .key code { color: #e8eef8; }

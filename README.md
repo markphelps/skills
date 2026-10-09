@@ -10,9 +10,9 @@ skills.sh conventions.
 
 ## Plugins
 
-| Plugin                        | Description                                                                                                                                                                                                                                   |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [development](./development/) | Agent context, PR fixups, CLI design, codebase-grounded landing copy, architecture mapping and whiteboard defense, OSS readiness and marketing, session log audits, feature maps, bug verification, decision records, and self-hosted runners |
+| Plugin                        | Description                                                                                                                                                                                                                                                      |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [development](./development/) | Agent context, PR fixups, CLI design, codebase-grounded landing copy, architecture mapping and whiteboard defense, OSS readiness and marketing, session log audits, feature maps, bug verification, decision records, technical manuals, and self-hosted runners |
 
 ## Layout
 
