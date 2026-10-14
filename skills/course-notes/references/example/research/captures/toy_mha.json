@@ -1,0 +1,6 @@
+{
+  "head_out_shape": [6, 2],
+  "concat_shape": [6, 4],
+  "mha_shape": [6, 4],
+  "teddy_bear_concat": [0.767, 0.058, 0.047, 0.758]
+}

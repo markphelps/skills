@@ -1,0 +1,14 @@
+{
+  "name": "technical-manual-kit",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/manrope": "^5.2.8",
+    "@fontsource/source-sans-3": "^5.2.9",
+    "@fontsource/source-serif-4": "^5.2.9",
+    "highlight.js": "^11.11.1",
+    "pagedjs": "0.4.3",
+    "playwright-core": "^1.56.0"
+  }
+}

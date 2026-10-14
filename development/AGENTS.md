@@ -22,6 +22,8 @@ agent context.
   capabilities that are proven by shipped code
 - `context-file-tuneup`: audit and rewrite `CLAUDE.md` / `AGENTS.md` files so
   they stay short, specific, and grounded in the repo
+- `course-notes`: turn photos of lecture notes into standalone, source-checked
+  study notes as a print-ready PDF, pitched at the reader's familiarity level
 - `feature-map`: build a repo-local verification skill listing each
   user-facing feature, how to reach and drive it, and what to observe
 - `decision-records`: write or update decision and implementation-plan records
@@ -80,5 +82,10 @@ agent context.
   and outline exist. Every claim traces to a pinned source or captured
   artefact, figures are drawn from captures, and unverifiable claims are cut or
   marked unverified.
+- For course notes, never add from memory: cite the course's slides, study
+  guide or paper, and compute numbers with check scripts. Keep the book
+  standalone (no "you", no quotes from or mentions of the original notes); ask
+  the student about their own pages in the conversation, one question at a time.
+  Ask for the familiarity level (1–5) before writing.
 - Do not manually restore removed development skills in top-level `skills/`.
   Run `npm run sync` so the generated mirror matches `development/skills/`.

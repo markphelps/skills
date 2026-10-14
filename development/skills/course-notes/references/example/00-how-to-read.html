@@ -1,0 +1,42 @@
+<div data-title="How to read these notes" data-deck="Study notes for Lecture 1, checked against the lecture's slides and the paper it teaches, with the hard parts worked through in numbers.">
+<p>These notes cover Lecture 1 of CME 295, Transformers &amp; Large Language Models, given on 25 September 2026 <cite>syllabus</cite>. They follow the lecture's order, cite a slide or the paper for every fact, and spend the most space on four topics that are hard on a first pass: attention, multi-head attention, LLM architecture, and training versus inference.</p>
+<p>They are written at <b>level 2 of 5</b>: for a reader with some programming who is new to, or rusty on, linear algebra and probability. Part 0 teaches the math the lecture uses, with small examples on the lecture's own sentence. Each formula is followed by a reading in plain words, and each new term is set in <b>bold</b> where it is defined. A reader comfortable with the math can skip Part 0; each lecture section opens with a "Uses" box saying which background sections it relies on.</p>
+
+<h2>The layers</h2>
+<div class="swatches">
+  <div class="k0"><b>Body text</b>every fact carries a source</div>
+  <div class="k0"><b>Focus</b>a hard topic in two or three sentences, then worked through with numbers</div>
+  <div class="k2"><b>In plain words</b>a formula read aloud, symbol by symbol</div>
+  <div class="k1"><b>Uses</b>the background sections a section relies on</div>
+  <div class="k0"><b>Analogy</b>an everyday comparison, and where it breaks</div>
+  <div class="k5"><b>Common mistake</b>a plausible reading the sources contradict</div>
+  <div class="k6"><b>Where this goes next</b>the later lecture, or the part of this one, that builds on the point</div>
+</div>
+
+<h2>What it was checked against</h2>
+<table>
+<thead><tr><th>Source</th><th>Version</th><th>Cited as</th></tr></thead>
+<tbody>
+<tr><td>Lecture 1 slides</td><td class="m">fall26-cme295-lecture1.pdf · 118 slides</td><td class="m">slide 62</td></tr>
+<tr><td>Lecture 2 slides, for where Lecture 1 leads</td><td class="m">fall26-cme295-lecture2.pdf · 138 slides</td><td class="m">L2 slide 20</td></tr>
+<tr><td>The course cheatsheet (summarises the Super Study Guide)</td><td class="m">afshinea/stanford-cme-295… @ c086dee</td><td class="m">cheatsheet</td></tr>
+<tr><td>Vaswani et al., "Attention Is All You Need"</td><td class="m">arXiv 1706.03762</td><td class="m">Vaswani §3.2.1</td></tr>
+<tr><td>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i>, for the background math</td><td class="m">MIT Press 2016 · deeplearningbook.org</td><td class="m">Goodfellow et al. §2.2</td></tr>
+<tr><td>Small scripts that compute the worked examples</td><td class="m">research/check/attention.py, background.py</td><td class="m">check script</td></tr>
+</tbody></table>
+<p class="note">Numbers labelled "toy" come from a six-word example built so its two heads behave in a readable way. Real heads are learned and are rarely this clean. Sizes labelled "paper" are the base model's.</p>
+
+<h2>The lecture, slide by slide</h2>
+<table>
+<thead><tr><th>Slides</th><th>Topic</th><th>Section</th></tr></thead>
+<tbody>
+<tr><td class="m">—</td><td>Math the lecture assumes: vectors, dot products, matrices, softmax, training, cross-entropy</td><td class="m">0.1–0.7</td></tr>
+<tr><td class="m">17–22</td><td>Eras: task-specific NLP, the 2017 paper, ChatGPT, agents</td><td class="m">1.1</td></tr>
+<tr><td class="m">23–55</td><td>Tokenization, embeddings, word2vec, RNNs, LSTMs, the history of attention</td><td class="m">1.1, 1.2</td></tr>
+<tr><td class="m">56–62</td><td>Query, key, value; attention as matrices</td><td class="m">1.3</td></tr>
+<tr><td class="m">63–74</td><td>Encoder, decoder, positional encoding, output layer, residuals, layer norm</td><td class="m">1.5</td></tr>
+<tr><td class="m">75–78</td><td>Masking, multi-head attention, dropout, label smoothing</td><td class="m">1.4, 1.6</td></tr>
+<tr><td class="m">79–115</td><td>End-to-end example: encoding, then decoding one token at a time</td><td class="m">1.6</td></tr>
+</tbody></table>
+<p class="sources">syllabus (cme295.stanford.edu/syllabus); Lecture 1 slides 17–115</p>
+</div>

@@ -1,0 +1,143 @@
+<section class="sec" id="bg-notation" data-background data-title="Reading the notation" data-deck="Lecture 1 writes its ideas in a compact notation. Each symbol stands for something small; read aloud, every formula in these notes is a sentence.">
+<p>This part teaches the math Lecture 1 assumes, at the level these notes are written for: some programming, little or no linear algebra. Every example uses the lecture's own sentence, <code>A cute teddy bear is reading.</code>, so the same numbers come back in section 1.3. This first section is a table to come back to.</p>
+<figure class="fig" id="fig-notation" data-title="Symbols used in these notes" data-tag="reference · Goodfellow et al., Notation">
+<table><thead><tr><th>Written</th><th>Read as</th><th>Means</th><th>Taught in</th></tr></thead><tbody>
+<tr><td class="m">x = [1, 2]</td><td>x is the vector one, two</td><td>an ordered list of numbers</td><td class="m">0.2</td></tr>
+<tr><td class="m">q · k</td><td>q dot k</td><td>multiply position by position, add up: one number</td><td class="m">0.3</td></tr>
+<tr><td class="m">X, W, Q</td><td>capital letters</td><td>matrices: tables of numbers, one row per token</td><td class="m">0.4</td></tr>
+<tr><td class="m">n × d</td><td>n by d</td><td>a shape: n rows, d columns</td><td class="m">0.4</td></tr>
+<tr><td class="m">XW</td><td>X times W</td><td>matrix product: every row of X dotted with every column of W</td><td class="m">0.4</td></tr>
+<tr><td class="m">Kᵀ</td><td>K transpose</td><td>K with rows turned into columns</td><td class="m">0.4</td></tr>
+<tr><td class="m">W<sub>Q</sub>, d<sub>k</sub></td><td>W sub Q, d sub k</td><td>a subscript is part of the name: "the W for queries", "the d for keys"</td><td class="m"></td></tr>
+<tr><td class="m">√d<sub>k</sub></td><td>square root of d sub k</td><td>the number that, multiplied by itself, gives d<sub>k</sub>: √64 = 8</td><td class="m"></td></tr>
+<tr><td class="m">e<sup>x</sup>, exp(x)</td><td>e to the x</td><td>the exponential: always positive, grows fast</td><td class="m">0.5</td></tr>
+<tr><td class="m">softmax(z)</td><td>softmax of z</td><td>turns a list of scores into weights that are positive and sum to 1</td><td class="m">0.5</td></tr>
+<tr><td class="m">log p, ln p</td><td>log of p</td><td>the inverse of e<sup>x</sup>: log 1 = 0, and it falls fast toward 0</td><td class="m">0.7</td></tr>
+<tr><td class="m">max(0, x)</td><td>max of zero and x</td><td>x if it is positive, otherwise 0</td><td class="m">0.6</td></tr>
+<tr><td class="m">−∞</td><td>minus infinity</td><td>a score so low that softmax gives it weight 0 (masking, 1.6)</td><td class="m">0.5</td></tr>
+</tbody></table>
+<figcaption><b>Every formula in Lecture 1 is built from these thirteen pieces.</b> Readings are the usual spoken forms; the book's notation page uses the same conventions (Goodfellow et al., Notation).</figcaption></figure>
+<p class="sources">Goodfellow, Bengio &amp; Courville, Deep Learning (2016), Notation and ch. 2</p>
+</section>
+
+<section class="sec" id="bg-vectors" data-background data-title="Vectors: a word as a list of numbers" data-deck="A model cannot read words, so each token becomes a list of numbers. Words with similar meanings get similar lists.">
+<p>This section says what a vector is, and how a word becomes one.</p>
+<p>A <dfn>vector</dfn> is an ordered list of numbers, such as [1.0, 0.1, 0.0, 0.0]. Its length is its <dfn>dimension</dfn>; that one has dimension 4. Each position can be read as a feature, a question the vector answers with a number <cite>Goodfellow et al. §2.1</cite>.</p>
+<p>The lecture turns every token into a vector called its <dfn>embedding</dfn>. The simplest choice, a <dfn>one-hot</dfn> vector, has one position per word in the vocabulary, a 1 for this word and 0 everywhere else; it says which word it is but nothing about what the word means. Learned embeddings put words that are used alike close together <cite>slides 33–44</cite>. Real embeddings have hundreds of dimensions whose meanings nobody chose; the toy one below has four, each with a name, so it can be read.</p>
+<figure class="fig" id="fig-toy-embed" data-title="The toy embeddings" data-tag="toy · research/captures/background.json">
+<table><thead><tr><th>Token</th><th class="n">adjective</th><th class="n">noun</th><th class="n">verb</th><th class="n">small word</th></tr></thead><tbody>
+<tr><td class="m">a</td><td class="n" data-value="research/captures/background.json#X.0.0"></td><td class="n" data-value="research/captures/background.json#X.0.1"></td><td class="n" data-value="research/captures/background.json#X.0.2"></td><td class="n" data-value="research/captures/background.json#X.0.3"></td></tr>
+<tr><td class="m">cute</td><td class="n" data-value="research/captures/background.json#X.1.0"></td><td class="n" data-value="research/captures/background.json#X.1.1"></td><td class="n" data-value="research/captures/background.json#X.1.2"></td><td class="n" data-value="research/captures/background.json#X.1.3"></td></tr>
+<tr><td class="m">teddy bear</td><td class="n" data-value="research/captures/background.json#X.2.0"></td><td class="n" data-value="research/captures/background.json#X.2.1"></td><td class="n" data-value="research/captures/background.json#X.2.2"></td><td class="n" data-value="research/captures/background.json#X.2.3"></td></tr>
+<tr><td class="m">is</td><td class="n" data-value="research/captures/background.json#X.3.0"></td><td class="n" data-value="research/captures/background.json#X.3.1"></td><td class="n" data-value="research/captures/background.json#X.3.2"></td><td class="n" data-value="research/captures/background.json#X.3.3"></td></tr>
+<tr><td class="m">reading</td><td class="n" data-value="research/captures/background.json#X.4.0"></td><td class="n" data-value="research/captures/background.json#X.4.1"></td><td class="n" data-value="research/captures/background.json#X.4.2"></td><td class="n" data-value="research/captures/background.json#X.4.3"></td></tr>
+<tr><td class="m">.</td><td class="n" data-value="research/captures/background.json#X.5.0"></td><td class="n" data-value="research/captures/background.json#X.5.1"></td><td class="n" data-value="research/captures/background.json#X.5.2"></td><td class="n" data-value="research/captures/background.json#X.5.3"></td></tr>
+</tbody></table>
+<figcaption><b>Six tokens, four numbers each: a 6 × 4 table.</b> Toy values chosen so each column has a meaning; the same table is X in the check scripts and in 1.3.</figcaption></figure>
+<div class="callout analogy" data-label="Analogy"><p>An embedding is like a profile with scored fields: "how adjective-like, how noun-like…". It breaks because learned dimensions have no names; meaning is spread across all of them.</p></div>
+<p class="sources">Lecture 1 slides 33–44; Goodfellow et al. §2.1; research/captures/background.json</p>
+</section>
+
+<section class="sec" id="bg-dot" data-background data-title="The dot product: how alike two vectors are" data-deck="Multiply two vectors position by position and add the results. The single number that comes out is large when the vectors point the same way, and it is the score at the heart of attention.">
+<p>This section computes one dot product by hand, then three on the toy embeddings.</p>
+<blockquote class="rule" data-label="Dot product">a · b = a<sub>1</sub>b<sub>1</sub> + a<sub>2</sub>b<sub>2</sub> + … + a<sub>d</sub>b<sub>d</sub> <cite>Goodfellow et al. §2.2</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>Pair up the numbers in the same position, multiply each pair, and add everything up. Two lists in, one number out.</p>
+<dl><dt>a, b</dt><dd>two vectors of the same dimension</dd><dt>a<sub>1</sub></dt><dd>the first number of a; a<sub>2</sub> the second, and so on</dd><dt>d</dt><dd>the dimension, how many numbers each has</dd></dl></div>
+<div class="steps">
+<p><b>By hand.</b> [1, 2] · [3, 1]: the pairs multiply to 3 and 2, which add up to <span data-value="research/captures/background.json#dot.small.value"></span>.</p>
+<p><b>On the toy embeddings.</b> <code>cute</code> · <code>teddy bear</code>: the products are <code data-value="research/captures/background.json#dot.cute_teddy_products"></code>, so the dot product is <span data-value="research/captures/background.json#dot.cute_teddy"></span>. <code>cute</code> · <code>cute</code> is <span data-value="research/captures/background.json#dot.cute_cute"></span>; <code>cute</code> · <code>reading</code> is <span data-value="research/captures/background.json#dot.cute_reading"></span>.</p>
+</div>
+<figure class="fig" id="fig-dots" data-title="Three dot products" data-tag="toy · research/captures/background.json">
+<table><thead><tr><th>Pair</th><th class="n">Dot product</th><th>Why</th></tr></thead><tbody>
+<tr><td class="m">cute · cute</td><td class="n" data-value="research/captures/background.json#dot.cute_cute"></td><td>same vector: every position matches</td></tr>
+<tr><td class="m">cute · teddy bear</td><td class="n" data-value="research/captures/background.json#dot.cute_teddy"></td><td>overlap only in the small cross terms</td></tr>
+<tr><td class="m">cute · reading</td><td class="n" data-value="research/captures/background.json#dot.cute_reading"></td><td>almost no shared feature</td></tr>
+</tbody></table>
+<figcaption><b>The more two vectors share, the bigger their dot product.</b> Computed by the background check script from the 0.2 table.</figcaption></figure>
+<p>Attention, in 1.3, scores how well a query matches a key with exactly this operation <cite>slide 62</cite>. One more fact it relies on: a dot product grows with the dimension, since more positions means more terms added up. That is why 1.3 divides by √d<sub>k</sub>.</p>
+<p class="sources">Goodfellow et al. §2.2; Lecture 1 slide 62; research/captures/background.json</p>
+</section>
+
+<section class="sec" id="bg-matrix" data-background data-title="Matrices: many dot products at once" data-deck="A matrix is a table of numbers. Multiplying two matrices computes a whole grid of dot products in one step, which is how attention handles every token at once.">
+<p>This section introduces matrices, their shapes, the matrix product and the transpose, then turns one token into its query with them.</p>
+<div class="callout prereq" data-label="Uses"><p>0.2 vectors · 0.3 dot product</p></div>
+<p>A <dfn>matrix</dfn> is a rectangle of numbers. Its <dfn>shape</dfn> is written rows × columns: the toy embedding table in 0.2 is a <span data-value="research/captures/background.json#matrix.X_shape.0"></span> × <span data-value="research/captures/background.json#matrix.X_shape.1"></span> matrix, one row per token, called X <cite>Goodfellow et al. §2.1</cite>.</p>
+<blockquote class="rule" data-label="Matrix product">(AB)<sub>ij</sub> = row i of A · column j of B, &nbsp; (n × d)(d × m) → n × m <cite>Goodfellow et al. §2.2</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>The number in row i, column j of the result is the dot product of row i of the first matrix with column j of the second. The inner sizes must match; the outer sizes give the result's shape.</p>
+<dl><dt>A, B</dt><dd>two matrices</dd><dt>(AB)<sub>ij</sub></dt><dd>the entry in row i, column j of the product</dd><dt>n × d</dt><dd>A has n rows and d columns; B must then have d rows</dd></dl></div>
+<h2>From an embedding to a query</h2>
+<p>In 1.3 every token's query is its embedding times a matrix of <dfn>weights</dfn>, W<sub>Q</sub>, numbers the model learns (0.6). X is 6 × 4 and W<sub>Q</sub> is 4 × 2, so Q = XW<sub>Q</sub> is 6 × 2: one query of two numbers per token <cite>slide 100</cite>. For <code>teddy bear</code>, row <code data-value="research/captures/background.json#matrix.teddy_row"></code> dotted with W<sub>Q</sub>'s first column (0, 2, 0, 0) gives 0 + 2 + 0 + 0 = 2; with the second column, 0. Its query is <code data-value="research/captures/background.json#matrix.teddy_query"></code>, the same query 1.3 starts from.</p>
+<figure class="fig" id="fig-shapes-bg" data-title="Shapes multiply like dominoes" data-tag="schematic · toy sizes">
+<table><thead><tr><th>Product</th><th>Shapes</th><th>Result</th><th>What it holds</th></tr></thead><tbody>
+<tr><td class="m">X W<sub>Q</sub></td><td class="m">(6 × 4)(4 × 2)</td><td class="m">6 × 2</td><td>one query per token</td></tr>
+<tr><td class="m">Q Kᵀ</td><td class="m">(6 × 2)(2 × 6)</td><td class="m">6 × 6</td><td>every query dotted with every key: <span data-value="research/captures/background.json#matrix.QKT_entries"></span> scores</td></tr>
+</tbody></table>
+<figcaption><b>The touching sizes must match and disappear.</b> Toy sizes from the check scripts; 1.3 gives the paper's.</figcaption></figure>
+<p>The <dfn>transpose</dfn> Kᵀ turns K's rows into columns. K holds one key per row; transposing it lines the keys up as columns, so the product QKᵀ dots every query with every key <cite>Goodfellow et al. §2.1</cite> <cite>slide 95</cite>.</p>
+<p class="sources">Goodfellow et al. §2.1–2.2; Lecture 1 slides 95, 100; research/captures/background.json</p>
+</section>
+
+<section class="sec" id="bg-softmax" data-background data-title="Exponentials and softmax: scores into weights" data-deck="Softmax takes any list of scores and returns positive weights that add up to 1, giving most of the weight to the biggest score. Attention uses it to decide how much each token counts.">
+<p>This section explains the exponential, then softmax on a three-number example and on the actual scores of 1.3.</p>
+<p>The <dfn>exponential</dfn> e<sup>x</sup> (e ≈ 2.718) is always positive and grows fast: e<sup>0</sup> = 1, e<sup>1</sup> ≈ 2.7, e<sup>2</sup> ≈ 7.4. A list of numbers that are positive and sum to 1 is a <dfn>probability distribution</dfn>: each number can be read as a share <cite>Goodfellow et al. §3.3</cite>.</p>
+<blockquote class="rule" data-label="Softmax">softmax(z)<sub>i</sub> = e<sup>z<sub>i</sub></sup> / (e<sup>z<sub>1</sub></sup> + … + e<sup>z<sub>n</sub></sup>) <cite>Goodfellow et al. §6.2.2.3</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>Make every score positive by raising e to it, then divide each by the total so they add up to 1. Bigger scores get a much bigger share, because e<sup>x</sup> grows fast.</p>
+<dl><dt>z</dt><dd>the list of scores, z<sub>1</sub> to z<sub>n</sub></dd><dt>softmax(z)<sub>i</sub></dt><dd>the weight given to score i</dd><dt>n</dt><dd>how many scores there are</dd></dl></div>
+<div class="steps">
+<p><b>By hand.</b> Scores <code data-value="research/captures/background.json#softmax.small_scores"></code>. Exponentials: <code data-value="research/captures/background.json#softmax.small_exp"></code>, total <span data-value="research/captures/background.json#softmax.small_sum"></span>. Divide each by the total: <code data-value="research/captures/background.json#softmax.small_weights"></code>.</p>
+<p><b>The scores of 1.3.</b> <code>teddy bear</code>'s query scored against the six keys, divided by √2 ≈ <span data-value="research/captures/background.json#softmax.sqrt2"></span>, gives <code data-value="research/captures/background.json#softmax.scores"></code>. Softmax turns them into <code data-value="research/captures/background.json#softmax.weights"></code>, which sum to <span data-value="research/captures/background.json#softmax.weights_sum"></span>.</p>
+</div>
+<figure class="fig" id="fig-softmax" data-title="Softmax on three scores" data-tag="toy · research/captures/background.json">
+<table><thead><tr><th>Score z</th><th class="n">e<sup>z</sup></th><th class="n">Weight</th></tr></thead><tbody>
+<tr><td class="m">2</td><td class="n" data-value="research/captures/background.json#softmax.small_exp.0"></td><td class="n" data-value="research/captures/background.json#softmax.small_weights.0"></td></tr>
+<tr><td class="m">1</td><td class="n" data-value="research/captures/background.json#softmax.small_exp.1"></td><td class="n" data-value="research/captures/background.json#softmax.small_weights.1"></td></tr>
+<tr><td class="m">0</td><td class="n" data-value="research/captures/background.json#softmax.small_exp.2"></td><td class="n" data-value="research/captures/background.json#softmax.small_weights.2"></td></tr>
+</tbody></table>
+<figcaption><b>A score one higher earns about 2.7 times the weight.</b> Computed by the background check script.</figcaption></figure>
+<p>Two consequences come up later. A score of 0 still gets some weight, because e<sup>0</sup> = 1. And a score of −∞ gets exactly 0, because e<sup>−∞</sup> = 0; that is how the mask in 1.6 hides a token completely <cite>Vaswani §3.2.3</cite>.</p>
+<p class="sources">Goodfellow et al. §3.3, §6.2.2.3; Vaswani §3.2.3; research/captures/background.json</p>
+</section>
+
+<section class="sec" id="bg-train" data-background data-title="Layers, weights and training" data-deck="A neural network is a stack of layers, each multiplying by a matrix of weights. Training nudges every weight, over and over, in the direction that makes the model's mistakes smaller.">
+<p>This section says what a layer and its weights are, then runs training on a model with a single weight so every step is visible.</p>
+<div class="callout prereq" data-label="Uses"><p>0.4 matrices</p></div>
+<p>A <dfn>layer</dfn> takes a vector in, multiplies it by a weight matrix, adds a vector called the <dfn>bias</dfn>, and usually applies a simple function to each number. The common one is the <dfn>ReLU</dfn>, max(0, x): it keeps positive numbers and turns negative ones into 0, so [−1.5, 0, 2] becomes [0, 0, 2] <cite>Goodfellow et al. §6.1</cite>. The Transformer's feed-forward network in 1.5 is two such layers <cite>Vaswani §3.3</cite>. The weights and biases together are the model's <dfn>parameters</dfn>.</p>
+<p><dfn>Training</dfn> chooses the parameters. It runs the model on an example with a known answer, measures how wrong the output is with a number called the <dfn>loss</dfn>, and changes each weight a little in the direction that lowers the loss. That direction comes from the <dfn>gradient</dfn>: how much the loss changes when a weight changes a little. Stepping against the gradient, over many examples, is <dfn>gradient descent</dfn> <cite>Goodfellow et al. §4.3</cite>.</p>
+<blockquote class="rule" data-label="One gradient-descent step">w<sub>new</sub> = w − η × (gradient of the loss with respect to w) <cite>Goodfellow et al. §4.3</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>Move the weight a small step in the direction that makes the loss go down. The size of the step is a fixed small number chosen before training.</p>
+<dl><dt>w</dt><dd>one weight</dd><dt>η</dt><dd>"eta", the learning rate: how big a step to take</dd><dt>gradient</dt><dd>how fast the loss grows as w grows; negative means increasing w lowers the loss</dd></dl></div>
+<div class="steps">
+<p><b>The model.</b> One weight: prediction = w × x. One example: x = <span data-value="research/captures/background.json#train.x"></span>, correct answer <span data-value="research/captures/background.json#train.target"></span>. Loss = (prediction − answer)². Start at w = <span data-value="research/captures/background.json#train.w0"></span>.</p>
+<p><b>One step.</b> The prediction is <span data-value="research/captures/background.json#train.pred0"></span>, the loss <span data-value="research/captures/background.json#train.loss0"></span>. The gradient is 2 × (prediction − answer) × x = <span data-value="research/captures/background.json#train.grad"></span>. With η = <span data-value="research/captures/background.json#train.lr"></span>, w becomes <span data-value="research/captures/background.json#train.w1"></span>, the prediction <span data-value="research/captures/background.json#train.pred1"></span>, the loss <span data-value="research/captures/background.json#train.loss1"></span>.</p>
+<p><b>Twenty steps.</b> w reaches <span data-value="research/captures/background.json#train.w_after_20"></span>, where the prediction equals the answer and the loss is 0.</p>
+</div>
+<figure class="fig" id="fig-train-modes" data-title="Training and using a model" data-tag="schematic">
+<table><thead><tr><th></th><th>Training</th><th>Inference</th></tr></thead><tbody>
+<tr><td>input</td><td>an example with its answer</td><td>a new input, no answer</td></tr>
+<tr><td>loss and gradient</td><td>computed</td><td>not computed</td></tr>
+<tr><td>weights</td><td>changed after every step</td><td>frozen</td></tr>
+</tbody></table>
+<figcaption><b>Only training changes the weights.</b> <dfn>Inference</dfn> means running the trained model to get an answer. Section 1.6 compares the two for the Transformer.</figcaption></figure>
+<p>A Transformer has millions of weights instead of one, and the gradients of all of them are computed together by <dfn>backpropagation</dfn>, but the step is the same <cite>Goodfellow et al. §6.5</cite>. The <dfn>vanishing-gradient problem</dfn> the lecture names for recurrent networks is the gradient shrinking toward 0 as it is passed back through many steps, so early weights barely move <cite>slide 53</cite>.</p>
+<p class="sources">Goodfellow et al. §4.3, §6.1, §6.5; Vaswani §3.3; Lecture 1 slide 53; research/captures/background.json</p>
+</section>
+
+<section class="sec" id="bg-loss" data-background data-title="Logs and cross-entropy: scoring a guess" data-deck="A language model's output is a probability for every word. Its loss is minus the log of the probability it gave the right word: near 0 when it was confident and right, large when it was confident and wrong.">
+<p>This section explains the logarithm, then the loss Lecture 1's model is trained with.</p>
+<div class="callout prereq" data-label="Uses"><p>0.5 probability distribution · 0.6 loss</p></div>
+<p>The natural <dfn>logarithm</dfn>, written log or ln, undoes the exponential: log(e<sup>x</sup>) = x. For a probability p between 0 and 1, log p is 0 at p = 1 and falls toward −∞ as p falls toward 0 <cite>Goodfellow et al. §3.13</cite>.</p>
+<blockquote class="rule" data-label="Cross-entropy loss, one position">loss = −log p(correct next token) <cite>cheatsheet</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>Look up the probability the model gave to the word that actually came next, take its log, and flip the sign so the loss is positive. A confident right answer costs almost nothing; a confident wrong answer costs a lot.</p>
+<dl><dt>p(correct next token)</dt><dd>the model's probability for the right word, one number between 0 and 1</dd><dt>−log</dt><dd>minus the logarithm: 0 at p = 1, large as p nears 0</dd></dl></div>
+<figure class="fig" id="fig-ce" data-title="The loss at five probabilities" data-tag="research/captures/background.json">
+<table><thead><tr><th>Probability given to the right word</th><th class="n">Loss, −log p</th></tr></thead><tbody>
+<tr><td class="m">1.0</td><td class="n" data-value="research/captures/background.json#ce.p_1_0"></td></tr>
+<tr><td class="m">0.9</td><td class="n" data-value="research/captures/background.json#ce.p_0_9"></td></tr>
+<tr><td class="m">0.4</td><td class="n" data-value="research/captures/background.json#ce.p_0_4"></td></tr>
+<tr><td class="m">0.1</td><td class="n" data-value="research/captures/background.json#ce.p_0_1"></td></tr>
+<tr><td class="m">0.01</td><td class="n" data-value="research/captures/background.json#ce.p_0_01"></td></tr>
+</tbody></table>
+<figcaption><b>Each tenfold drop in the right word's probability adds about 2.3 to the loss.</b> Computed by the background check script.</figcaption></figure>
+<p>This number is the loss of 0.6 for a language model, so training pushes up the probability of each correct next word. Section 1.6 applies it to every position of the French sentence at once.</p>
+<p class="sources">Goodfellow et al. §3.13; cheatsheet (cross-entropy loss); research/captures/background.json</p>
+</section>
