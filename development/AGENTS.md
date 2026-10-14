@@ -86,7 +86,6 @@ agent context.
   guide or paper, and compute numbers with check scripts. Keep the book
   standalone (no "you", no quotes from or mentions of the original notes); ask
   the student about their own pages in the conversation, one question at a time.
-  Ask for the familiarity level (1–5) before writing, and do not ask for
-  handwriting samples up front.
+  Ask for the familiarity level (1–5) before writing.
 - Do not manually restore removed development skills in top-level `skills/`.
   Run `npm run sync` so the generated mirror matches `development/skills/`.

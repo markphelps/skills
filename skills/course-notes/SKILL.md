@@ -43,7 +43,6 @@ book.
 | Path                          | Read when                                                                                                                                                                                                         |
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `references/transcription.md` | Before reading the photos. Line-by-line transcription, conventions, uncertainty, diagrams, the coverage table.                                                                                                    |
-| `references/handwriting/`     | Only when a hand is hard to read. A profile template for the confusable letters and habits of one hand, kept in `research/handwriting/`.                                                                          |
 | `references/levels.md`        | In step 0 and before writing. The 1–5 familiarity scale: how to ask, what each level changes, finding prerequisites, writing for beginners.                                                                       |
 | `references/gaps.md`          | After transcription. How to align notes with the slides, the kinds of gap, the gap ledger, what to ask the student.                                                                                               |
 | `references/markup.md`        | Before writing. The note layers, callouts, figures, data binding, figure generators.                                                                                                                              |
@@ -92,10 +91,6 @@ Settle, from the request or by asking (one question at a time):
   turns up, or the materials sit behind a login or a paywall (Canvas, Ed, a
   textbook). If there are no slides at all, ask what the lecture followed (a
   textbook chapter, a recording) and cite that.
-- **Handwriting samples: do not ask up front.** Most handwriting reads fine from
-  the lecture pages and the slides' vocabulary. Ask for a sample sheet
-  (`references/handwriting/profile.md`) only if a lecture's transcription has
-  several uncertain readings that change the meaning.
 
 Record the answers once in `research/COURSE.md`, headed
 `# <Course> · <School> · <term>` (course, term, website, syllabus, lecture list
@@ -107,8 +102,7 @@ right.
 
 ### 1. Transcribe
 
-Read `references/transcription.md` (and the student's handwriting profile, if
-there is one), then transcribe every photo into
+Read `references/transcription.md`, then transcribe every photo into
 `research/transcription/transcript.md`, line by line, with page and line
 numbers. Keep spelling, abbreviations and struck-out words. Describe each
 diagram in words. Mark every reading you are not sure of, and say whether the
@@ -216,7 +210,7 @@ warm without padding.
 ## Grounding rules
 
 1. The transcript records the student's words exactly. A misreading is fixed in
-   the transcript, and the profile learns from it.
+   the transcript.
 2. Every expansion carries a `<cite>`: `slide 62`, `L2 slide 20`,
    `Vaswani §3.2.1`, `cheatsheet`. Every section ends with a Sources line. The
    build refuses a common-mistake callout without a cite.

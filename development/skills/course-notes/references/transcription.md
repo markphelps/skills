@@ -7,8 +7,7 @@ and honest about doubt.
 
 ## Before you start
 
-1. If the student has a handwriting profile in `research/handwriting/`, read it.
-   Otherwise watch for the usual collisions (`l`/`1`/`I`, `O`/`0`, `u`/`v`,
+1. Watch for the usual collisions in handwriting (`l`/`1`/`I`, `O`/`0`, `u`/`v`,
    `cl`/`d`) and resolve them from context.
 2. Skim the lecture's slides first. Knowing the vocabulary is what resolves most
    doubtful words ("attn" next to "Encoder-Decoder" is attention; "PE" after
@@ -67,6 +66,5 @@ that cover them, never what the notes covered.
 
 ## When the student corrects you
 
-Fix the transcript and anything written from it, and, if the same misreading
-could recur, note the pattern in `research/handwriting/profile.md` ("writes `l`
-and `1` the same; context decides").
+Fix the transcript and anything written from it, and read the rest of that
+student's pages with the same correction in mind.
