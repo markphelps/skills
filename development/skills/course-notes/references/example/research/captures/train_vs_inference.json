@@ -1,0 +1,34 @@
+{
+  "target_in": ["[BOS]", "Un", "ours", "en", "peluche", "mignon", "lit"],
+  "labels": ["Un", "ours", "en", "peluche", "mignon", "lit", "[EOS]"],
+  "mask": [
+    [1, 0, 0, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1]
+  ],
+  "max_diff_train_vs_steps": 4.440892098500626e-16,
+  "max_diff_steps_vs_cache": 5.551115123125783e-16,
+  "dots_training_pass_computed": 49,
+  "dots_training_pass_used": 28,
+  "dots_inference_no_cache": 140,
+  "dots_inference_with_cache": 28,
+  "forward_passes_training": 1,
+  "forward_passes_inference": 7,
+  "ce_loss_example": {
+    "p": 0.4,
+    "loss": 0.916
+  },
+  "ce_loss_if_p_0_9": 0.105,
+  "label_smoothing_example": {
+    "eps": 0.1,
+    "V": 10,
+    "correct": 0.91,
+    "each_other": 0.01
+  },
+  "masked_weights_row_lit": [0.31, 0.08, 0.11, 0.14, 0.14, 0.09, 0.13],
+  "masked_weights_row_ours": [0.33, 0.2, 0.48, 0.0, 0.0, 0.0, 0.0]
+}

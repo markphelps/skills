@@ -1,7 +1,7 @@
 {
   "name": "development",
-  "version": "0.0.11",
-  "description": "Developer workflow skills for agent context, PR fixups, CLI design, codebase-grounded landing copy, architecture mapping and whiteboard defense, OSS readiness, OSS marketing, session log audits, agent feature maps, bug verification, decision records, source-grounded technical manuals, and GitHub Actions self-hosted runners.",
+  "version": "0.0.12",
+  "description": "Developer workflow skills for agent context, PR fixups, CLI design, codebase-grounded landing copy, architecture mapping and whiteboard defense, OSS readiness, OSS marketing, session log audits, agent feature maps, bug verification, decision records, source-grounded technical manuals, source-checked course notes, and GitHub Actions self-hosted runners.",
   "author": {
     "name": "Mark Phelps"
   },
@@ -56,13 +56,18 @@
     "documentation",
     "internals",
     "file-format",
-    "pdf"
+    "pdf",
+    "course-notes",
+    "study-notes",
+    "lecture-notes",
+    "study-guide",
+    "education"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Development",
-    "shortDescription": "Agent context, PR fixup, CLI design, landing copy, architecture mapping and whiteboard defense, OSS readiness, marketing, session log audit, feature maps, bug verification, decision records, technical manuals, and runner workflows",
-    "longDescription": "Development workflow skills for auditing agent context files, fixing existing GitHub PRs, designing humane command-line interfaces, writing product landing-page copy backed by shipped code, mapping codebase architecture and design rationale, preparing GitHub repos for open source release, sharpening OSS README positioning, mining local agent session logs for papercuts in your own tools, building feature maps that let agents drive and verify an app, verifying whether claimed bugs are real, writing and maintaining decision and plan records (ADRs), writing source-grounded technical manuals as print-ready PDFs, and running GitHub Actions self-hosted runners on a Linux host.",
+    "shortDescription": "Agent context, PR fixup, CLI design, landing copy, architecture mapping and whiteboard defense, OSS readiness, marketing, session log audit, feature maps, bug verification, decision records, technical manuals, course notes, and runner workflows",
+    "longDescription": "Development workflow skills for auditing agent context files, fixing existing GitHub PRs, designing humane command-line interfaces, writing product landing-page copy backed by shipped code, mapping codebase architecture and design rationale, preparing GitHub repos for open source release, sharpening OSS README positioning, mining local agent session logs for papercuts in your own tools, building feature maps that let agents drive and verify an app, verifying whether claimed bugs are real, writing and maintaining decision and plan records (ADRs), writing source-grounded technical manuals as print-ready PDFs, turning photos of lecture notes into source-checked study notes pitched at the reader's level, and running GitHub Actions self-hosted runners on a Linux host.",
     "developerName": "Mark Phelps",
     "category": "Development",
     "capabilities": ["Read", "Write"],
@@ -91,7 +96,9 @@
       "Set up a docs/records directory with a registry README for this repo.",
       "Is this bug from the code review actually real?",
       "Verify the suspected bugs in docs/map/ and write the verdicts back.",
-      "Write a technical manual on how this file format works, down to the bytes."
+      "Write a technical manual on how this file format works, down to the bytes.",
+      "Turn these photos of my lecture notes into detailed study notes I can share.",
+      "Here are my notes from lecture 3; I'm a 2 out of 5 on this subject, so fill in the background."
     ]
   }
 }

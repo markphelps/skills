@@ -1,0 +1,7 @@
+/* cover plate for the notes */
+.plate-intro { font: 9.4pt/1.55 var(--sans); max-width: 82%; margin: 0 0 18pt; color: var(--ink-2); }
+.plate svg { margin-bottom: 16pt; }
+.plate-key { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 22pt; font: 8.4pt/1.45 var(--sans); color: var(--ink-2); }
+.plate-key b { display: inline-block; width: 14pt; font: 600 9pt var(--mono); color: var(--accent); }
+/* compact bar sets when a figure stacks three of them */
+#fig-heads .bars > div { margin-bottom: .4pt; } #fig-heads .bars b { height: 6.6pt; } #fig-heads .fig-sub { margin-top: 4pt; }

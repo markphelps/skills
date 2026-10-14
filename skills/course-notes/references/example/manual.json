@@ -1,0 +1,38 @@
+{
+  "title": "CME 295",
+  "short": "CME 295",
+  "kind": "Course Notes",
+  "slug": "CME295-Lecture-1",
+  "edition": "Fall 2026 · Lecture 1 · Level 2: no linear algebra assumed",
+  "description": "Study notes for Lecture 1 on the Transformer, written for readers new to the math: a background part on vectors, dot products, matrices, softmax and training, then the lecture, checked against the fall 2026 slides, the course cheatsheet and the original paper.",
+  "author": "Study notes for CME 295",
+  "theme": "cool",
+  "cover": {
+    "style": "paper",
+    "plate": "cover.html"
+  },
+  "front": "00-how-to-read.html",
+  "parts": [
+    {
+      "title": "Background · the math Lecture 1 uses",
+      "short": "Background",
+      "number": "0",
+      "deck": "Vectors, dot products, matrices, softmax, training and cross-entropy, each with a small example from the lecture's own sentence.",
+      "file": "00-background.html"
+    },
+    {
+      "title": "Lecture 1 · Transformers",
+      "short": "Lecture 1",
+      "deck": "Attention lets every token weigh every other token. The Transformer is attention, stacked, plus the bookkeeping that makes it train.",
+      "file": "01-lecture-1.html",
+      "number": "1"
+    },
+    {
+      "title": "Reference",
+      "number": "R",
+      "deck": "Formulas, terms, questions and answers to keep open while studying.",
+      "file": "r-reference.html"
+    }
+  ],
+  "level": 2
+}

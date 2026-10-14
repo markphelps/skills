@@ -1,0 +1,13 @@
+{
+  "d_model": 512,
+  "h": 8,
+  "N": 6,
+  "d_ff": 2048,
+  "d_k": 64,
+  "d_v": 64,
+  "attn_params_per_layer": 1048576,
+  "ffn_params_per_layer": 2097152,
+  "label_smoothing": 0.1,
+  "dropout": 0.1,
+  "one_big_head_params": 1048576
+}

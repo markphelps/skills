@@ -1,0 +1,176 @@
+<section class="sec" id="paper" data-title="The paper and the problem it solved" data-deck="The Transformer was built in 2017 to translate sentences. It dropped recurrence and kept only attention, which is why everything after it in this course is attention plus engineering.">
+<p>This section places the 2017 paper in the lecture's timeline, then says what problem it was solving and what it replaced.</p>
+<p>The slide that introduces the Transformer gives three facts: it comes from the 2017 paper, it "relies on the self-attention mechanism" (<dfn>self-attention</dfn>: every word of a sentence looks at every other word of the same sentence, 1.3), and it reached state-of-the-art results on machine translation <cite>slide 57</cite>. The running example for the whole lecture is one translation: <code>A cute teddy bear is reading.</code> into <code>Un ours en peluche mignon lit.</code> <cite>slide 64</cite>.</p>
+<figure class="fig" id="fig-eras" data-title="Where the lecture starts" data-tag="timeline · slides 17–22, 117">
+<table><thead><tr><th>When</th><th>Era</th><th>What it looked like</th></tr></thead><tbody>
+<tr><td class="m">2010s</td><td>Task-specific NLP</td><td>a separate model per task: sentiment, translation, named entities; built on RNNs</td></tr>
+<tr><td class="m">2017</td><td>The Transformer</td><td>"Attention Is All You Need", Vaswani et al.</td></tr>
+<tr><td class="m">2022</td><td>Conversational</td><td>ChatGPT launches</td></tr>
+<tr><td class="m">now</td><td>Agentic</td><td>Claude Code, Cursor, Codex, Antigravity</td></tr>
+</tbody></table>
+<figcaption><b>The course covers the last two rows.</b> Lecture 1 builds the 2017 model they all descend from. From slides 18–22; the course's scope is slide 117.</figcaption></figure>
+<h2>What attention replaced</h2>
+<p>Before 2017 the standard tool was the <dfn>recurrent network</dfn> (RNN), which reads a sentence one word at a time, each step feeding the next <cite>slides 45–50</cite>. The slides list its costs: a vanishing-gradient problem and slow computation <cite>slide 53</cite>. Attention first appeared in 2014 as a patch on that design, so a translation model could look back at the input sentence it otherwise failed to "remember" <cite>slides 54–55</cite>. The Transformer's step was to keep the patch and drop the recurrence.</p>
+<p class="sources">Lecture 1 slides 17–22, 45–57, 64, 117</p>
+</section>
+
+<section class="sec" id="before" data-title="Before attention: tokens and embeddings" data-deck="The first half of the lecture built the input attention needs: text cut into tokens, each token turned into a vector.">
+<p>This section summarises slides 23–55 in one page: tokenization, special tokens, word embeddings and the recurrent models attention replaced. Attention, in the next section, operates on the vectors these slides produce.</p>
+<h2>Tokens</h2>
+<p><dfn>Tokenization</dfn> cuts text into <dfn>tokens</dfn>, the units the model reads; each token is then looked up as a vector (0.2). A token can be a whole word, a single character, or a piece of a word <cite>slides 25–27</cite>.</p>
+<table><thead><tr><th>Level</th><th>A token is</th><th>Good</th><th>Bad</th></tr></thead><tbody>
+<tr><td>word</td><td>a word</td><td>simple, interpretable</td><td>out-of-vocabulary words, very large vocabulary</td></tr>
+<tr><td>character</td><td>a character</td><td>robust to casing and misspellings, small vocabulary</td><td>embeddings mean little, much slower</td></tr>
+<tr><td>subword</td><td>a piece such as <code>ted ##dy</code>, <code>read ##ing</code></td><td>learned from data</td><td>extra work; quality depends on the corpus</td></tr>
+</tbody></table>
+<p class="note">From slides 25–27.</p>
+<p>Four <dfn>special tokens</dfn>, markers that are not words, recur through the lecture: <code>[UNK]</code> for out-of-vocabulary input, <code>[BOS]</code> and <code>[EOS]</code> to mark the beginning and end of a sequence, and <code>[PAD]</code> to fill a batch to equal length <cite>slides 28–31</cite>. <code>[BOS]</code> matters later: it is the decoder's first input when translation starts <cite>slide 70</cite>.</p>
+<h2>Embeddings</h2>
+<p>Each token becomes a vector (0.2). A one-hot vector is the naive choice; <dfn>word2vec</dfn> instead learns an embedding by training a small network on a proxy task, predicting nearby words, over billions of words <cite>slides 33–44</cite>. Its weakness, per the slides' summary table, is that word order is ignored and an embedding is the same in every context <cite>slide 53</cite>. Attention is what makes them context-aware: the encoder's output is "context-aware encoded embeddings" <cite>slide 104</cite>.</p>
+<p class="sources">Lecture 1 slides 23–55, 70, 104</p>
+</section>
+
+<section class="sec" id="attention" data-title="Attention: query, key, value" data-deck="Each token asks a question (its query), every token offers a label (its key), and the answer is an average of every token's content (its value), weighted by how well query and key match.">
+<p>This section starts from the lecture's picture of one query, works it through with numbers, then writes the same computation for all tokens at once, which is the formula on slide 62.</p>
+<div class="callout prereq" data-label="Uses"><p>0.2 vectors · 0.3 dot product · 0.4 matrices and transpose · 0.5 softmax</p></div>
+<div class="callout focus" data-label="Focus"><p>The whole mechanism is three steps: score every key against the query, turn the scores into weights that sum to 1, and average the values with those weights. Everything else is how to do that for every token in parallel.</p></div>
+<p>Every token gets three vectors. Its <dfn>query</dfn> describes what it is looking for; its <dfn>key</dfn> describes what it offers to be matched on; its <dfn>value</dfn> is the content it passes on when matched <cite>slides 58–61</cite>. Slide 60 draws the idea for one token: the query for <code>teddy bear</code> compared with the key of every token, including its own <cite>slides 58–60</cite>. The key is what lets the model find which tokens are most similar to the query. Slide 61 adds the third piece, a value under every token.</p>
+<div class="callout analogy" data-label="Analogy"><p>A library search: the query is what is typed into the search box, the keys are the labels on the books' spines, and the values are what is inside the books. It breaks in one place: attention never picks a single book; it reads a blend of all of them, weighted by match.</p></div>
+<h2>One query, worked through</h2>
+<p>Take a toy version of the slide's sentence, six tokens, keys and queries of size 2, and a head built to make a noun look for the word that describes it. The figure is slide 60's picture with the computed weights.</p>
+<figure class="fig" id="fig-fan" data-title="One query, computed" data-tag="toy · research/captures/toy_attention.json">
+<!--#include research/figs/fan-head1.html-->
+<figcaption><b>Three quarters of the attention goes to "cute".</b> Line width is the weight. Toy head built so a noun's query matches adjectives; weights from the check script.</figcaption></figure>
+<div class="steps">
+<p><b>1 · Score.</b> Multiply the query with each key (a dot product) and divide by √d<sub>k</sub>. The query for <code>teddy bear</code> is <code data-value="research/captures/toy_attention.json#head1.q"></code>. Against the key of <code>cute</code> the scaled score is <span data-value="research/captures/toy_attention.json#head1.scores.1"></span>; against its own key, <span data-value="research/captures/toy_attention.json#head1.scores.2"></span>; against the rest, 0.</p>
+<p><b>2 · Normalise.</b> Softmax turns the six scores into six weights that are positive and sum to 1. <code>cute</code> gets <span data-value="research/captures/toy_attention.json#head1.weights.1"></span>; each word with score 0 still gets <span data-value="research/captures/toy_attention.json#head1.weights.0"></span>, because softmax never gives exactly zero.</p>
+<p><b>3 · Average.</b> Multiply each token's value vector by its weight and add them up. The result, <code data-value="research/captures/toy_attention.json#head1.output"></code>, is the new representation of <code>teddy bear</code>: mostly the content of <code>cute</code>, a little of everything else. That is the "weighted average of values with weights being a function of ⟨q, k⟩" on slide 99.</p>
+</div>
+<div class="callout fix" data-label="Common mistake"><p>It is tempting to read the value as the token's actual vector, its embedding. It is not: like the query and key, it is the embedding multiplied by a learned matrix, W<sub>V</sub> <cite>slide 100</cite> <cite>Vaswani §3.2.2</cite>. A token can be matched on one thing (its key) and contribute something else (its value).</p></div>
+<h2>All queries at once</h2>
+<p>Doing step 1–3 for every token is three matrix products. Stack every token's query, key and value as rows of Q, K and V:</p>
+<blockquote class="rule" data-label="Scaled dot-product attention">Attention(Q, K, V) = softmax(QKᵀ / √d<sub>k</sub>) V <cite>slide 62</cite> <cite>Vaswani §3.2.1 Eq. 1</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>Dot every query with every key to get a table of scores, shrink the scores by √d<sub>k</sub>, turn each row into weights with softmax, and use each row's weights to average the values. The result has one new vector per token.</p>
+<dl><dt>Q, K, V</dt><dd>all the queries, keys and values, one row per token (0.4)</dd><dt>QKᵀ</dt><dd>the n × n table of every query dotted with every key</dd><dt>d<sub>k</sub></dt><dd>how many numbers each query and key has; 2 in the toy, 64 in the paper</dd><dt>softmax(…) V</dt><dd>weights from softmax, row by row (0.5), times the values: a weighted average</dd></dl></div>
+<figure class="fig" id="fig-shapes" data-title="Shapes through the formula" data-tag="schematic · n tokens">
+<table><thead><tr><th>Step</th><th>Computes</th><th>Shape</th><th>Toy</th><th>Paper base model</th></tr></thead><tbody>
+<tr><td>project</td><td class="m">Q = XW<sub>Q</sub>, K = XW<sub>K</sub>, V = XW<sub>V</sub></td><td class="m">n × d<sub>k</sub></td><td class="m">6 × 2</td><td class="m">n × <span data-value="research/captures/paper.json#d_k"></span></td></tr>
+<tr><td>score</td><td class="m">QKᵀ / √d<sub>k</sub></td><td class="m">n × n</td><td class="m">6 × 6</td><td class="m">n × n</td></tr>
+<tr><td>normalise</td><td class="m">softmax, row by row</td><td class="m">n × n</td><td class="m">each row sums to 1</td><td class="m">each row sums to 1</td></tr>
+<tr><td>average</td><td class="m">weights × V</td><td class="m">n × d<sub>v</sub></td><td class="m">6 × 2</td><td class="m">n × <span data-value="research/captures/paper.json#d_v"></span></td></tr>
+</tbody></table>
+<figcaption><b>Row i of the n × n matrix is slide 60's picture for token i.</b> The slides draw Q against Kᵀ as two grids (slide 95); the toy column is the check script's example.</figcaption></figure>
+<h2>Why divide by √d<sub>k</sub></h2>
+<p>A dot product adds up d<sub>k</sub> products (0.3), so the more dimensions, the bigger the scores tend to get. The paper makes this exact with the <dfn>variance</dfn>, a measure of how far numbers typically spread from their average: if the parts of q and k are random with average 0 and variance 1, their dot product has variance d<sub>k</sub>, so with 64 dimensions scores get large. Large scores push softmax to put almost all weight on one token (0.5), where its gradients (0.6) are tiny and learning stalls; dividing by √d<sub>k</sub> brings the variance back to 1 <cite>Vaswani §3.2.1, footnote 4</cite>.</p>
+<figure class="fig" id="fig-spread" data-title="Why scores are scaled" data-tag="simulation · research/captures/background.json">
+<table><thead><tr><th>d<sub>k</sub></th><th class="n">typical score size</th><th class="n">√d<sub>k</sub></th><th class="n">after dividing by √d<sub>k</sub></th></tr></thead><tbody><tr><td class="m">2</td><td class="n" data-value="research/captures/background.json#spread.0.std"></td><td class="n" data-value="research/captures/background.json#spread.0.sqrt_d"></td><td class="n" data-value="research/captures/background.json#spread.0.std_scaled"></td></tr><tr><td class="m">16</td><td class="n" data-value="research/captures/background.json#spread.1.std"></td><td class="n" data-value="research/captures/background.json#spread.1.sqrt_d"></td><td class="n" data-value="research/captures/background.json#spread.1.std_scaled"></td></tr><tr><td class="m">64</td><td class="n" data-value="research/captures/background.json#spread.2.std"></td><td class="n" data-value="research/captures/background.json#spread.2.sqrt_d"></td><td class="n" data-value="research/captures/background.json#spread.2.std_scaled"></td></tr></tbody></table>
+<figcaption><b>Unscaled scores grow like √d<sub>k</sub>; scaled ones stay near 1 at any size.</b> 20,000 random query–key pairs per row; "typical size" is the <dfn>standard deviation</dfn>, the square root of the variance. Background check script.</figcaption></figure>
+<p class="sources">Lecture 1 slides 58–62, 95, 99–100; Vaswani §3.2.1 (Eq. 1, footnote 4), §3.2.2; research/check/attention.py; research/captures/toy_attention.json</p>
+</section>
+
+<section class="sec" id="multihead" data-title="Multi-head attention" data-deck="One attention computation can only look for one kind of match at a time. Multi-head attention runs several small ones side by side and concatenates their answers, for about the same cost as one big one.">
+<p>This section fixes the definition of a head, shows two toy heads looking for different things in the same sentence, and gives the paper's sizes.</p>
+<div class="callout prereq" data-label="Uses"><p>1.3 attention · 0.4 matrices</p></div>
+<div class="callout focus" data-label="Focus"><p>A <dfn>head</dfn> is one complete attention computation, with its own W<sub>Q</sub>, W<sub>K</sub>, W<sub>V</sub>. Multi-head attention is h of them on the same input, in parallel; their outputs are glued together and mixed by one more matrix.</p></div>
+<div class="callout fix" data-label="Common mistake"><p>A head is often described as "the projection matrices that produce Q, K and V". The matrices belong to a head; they are not the head. In the paper, head<sub>i</sub> = Attention(QW<sub>i</sub><sup>Q</sup>, KW<sub>i</sub><sup>K</sup>, VW<sub>i</sub><sup>V</sup>): the head is the whole attention computation done with those matrices <cite>Vaswani §3.2.2</cite>. The slide calls multi-head attention "multiple self-attention layers in parallel" <cite>slide 76</cite>.</p></div>
+<p>Why several? The slide: multiple heads let the model "capture different attention features in parallel", like the several filters of a convolutional layer <cite>slide 76</cite>. The paper: they let the model "jointly attend to information from different representation subspaces" <cite>Vaswani §3.2.2</cite>.</p>
+<h2>How the heads are combined</h2>
+<blockquote class="rule" data-label="Multi-head attention">MultiHead(Q, K, V) = Concat(head<sub>1</sub>, …, head<sub>h</sub>) W<sup>O</sup> <cite>Vaswani §3.2.2</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>Run h separate attention computations side by side, lay their outputs end to end into one long vector per token, and multiply by one more weight matrix to mix them.</p>
+<dl><dt>head<sub>i</sub></dt><dd>the output of attention number i, with its own W<sub>Q</sub>, W<sub>K</sub>, W<sub>V</sub></dd><dt>h</dt><dd>the number of heads; 8 in the paper</dd><dt>Concat</dt><dd>concatenate: join the vectors end to end, so eight 64-number outputs make one of 512</dd><dt>W<sup>O</sup></dt><dd>the output weight matrix that mixes the heads</dd></dl></div>
+<table><thead><tr><th>Paper base model</th><th class="n">Value</th><th>Why</th></tr></thead><tbody>
+<tr><td>model width d<sub>model</sub></td><td class="n" data-value="research/captures/paper.json#d_model"></td><td>size of every token vector</td></tr>
+<tr><td>heads h</td><td class="n" data-value="research/captures/paper.json#h"></td><td></td></tr>
+<tr><td>per-head size d<sub>k</sub> = d<sub>v</sub></td><td class="n" data-value="research/captures/paper.json#d_k"></td><td>d<sub>model</sub> / h, so the concatenation is d<sub>model</sub> wide again</td></tr>
+<tr><td>attention weights per layer</td><td class="n" data-value="research/captures/paper.json#attn_params_per_layer" data-format="int"></td><td>all W<sub>Q</sub>, W<sub>K</sub>, W<sub>V</sub> for 8 heads, plus W<sup>O</sup></td></tr>
+<tr><td>same, one full-width head</td><td class="n" data-value="research/captures/paper.json#one_big_head_params" data-format="int"></td><td>identical: splitting into heads is free in parameters</td></tr>
+</tbody></table>
+<p class="note">Biases ignored. The paper states the cost is "similar to that of single-head attention with full dimensionality" (§3.2.2).</p>
+<h2>Two heads on one sentence</h2>
+<figure class="fig" id="fig-heads" data-title="Two heads, one query" data-tag="toy · research/captures/toy_attention.json">
+<!--#include research/figs/bars-heads.html-->
+<figcaption><b>Each head finds its own word; one head asked to find both splits the difference.</b> Attention weights of the query <code>teddy bear</code>. Toy heads built for the purpose; learned heads are messier.</figcaption></figure>
+<p>Head 1 puts <span data-value="research/captures/toy_attention.json#head1.weights.1"></span> of its weight on <code>cute</code>; head 2 puts <span data-value="research/captures/toy_attention.json#head2.weights.4"></span> on <code>reading</code>. A single head given both jobs splits its weight, <span data-value="research/captures/toy_attention.json#one_head_mixed.weights.1"></span> on each, and its output is a blur of the two. Running both heads and keeping both answers side by side is the point of multiple heads.</p>
+<div class="callout why" data-label="Where this goes next"><p>Lecture 2 shows that modern LLMs often share keys and values between heads: one shared K and V for all query heads (MQA) or one per group of heads (GQA), to reduce the computational overhead <cite>L2 slides 80–83</cite> <cite>cheatsheet</cite>.</p></div>
+<p class="sources">Lecture 1 slide 76; Lecture 2 slides 80–83; Vaswani §3.2.2; research/captures/toy_attention.json, paper.json</p>
+</section>
+
+<section class="sec" id="architecture" data-title="The encoder–decoder architecture" data-deck="The original Transformer uses attention three ways: the encoder's tokens look at each other, the decoder's tokens look at the ones already written, and the decoder looks at the encoder's output. What differs is where the queries, keys and values come from.">
+<div class="callout prereq" data-label="Uses"><p>1.3 attention · 1.4 heads · 0.6 layers and ReLU</p></div>
+<p>The Transformer has two halves. The <dfn>encoder</dfn> reads the input sentence and produces one vector per input token; the <dfn>decoder</dfn> writes the output sentence one token at a time, reading the encoder's vectors as it goes <cite>slides 63–72</cite>. This section sorts the three uses of attention into one table, then lists the rest of a layer and how word order gets in.</p>
+<figure class="fig" id="fig-three" data-title="Three kinds of attention" data-tag="comparison · Vaswani §3.2.3, slides 69, 71">
+<table><thead><tr><th>Attention</th><th>Queries from</th><th>Keys and values from</th><th>Can see</th><th>Question it answers</th></tr></thead><tbody>
+<tr><td>encoder self (Enc-Enc)</td><td>input tokens</td><td>input tokens</td><td>all input positions</td><td>how do the input words relate to each other?</td></tr>
+<tr><td>decoder self (Dec-Dec), masked</td><td>output tokens</td><td>output tokens</td><td>output positions so far</td><td>which words already written help with the next one?</td></tr>
+<tr><td>encoder-decoder (<dfn>cross-attention</dfn>)</td><td>output tokens</td><td>the encoder's output</td><td>all input positions</td><td>which input words matter for the next output word?</td></tr>
+</tbody></table>
+<figcaption><b>Only the source of K and V changes, plus a mask on one of them.</b> The formula is the same in all three rows. From Vaswani §3.2.3 and slides 69 and 71.</figcaption></figure>
+<h2>The rest of a layer</h2>
+<p>Each encoder layer is self-attention then a feed-forward network; each decoder layer adds the cross-attention between them <cite>slides 69, 71</cite>. Around every sub-layer sit two tricks, and the model stacks N = 6 such layers on each side <cite>Vaswani §3.1</cite>.</p>
+<table><thead><tr><th>Part</th><th>What it does</th><th>Source</th></tr></thead><tbody>
+<tr><td><dfn>feed-forward network</dfn></td><td>the same two-layer network (0.6) applied to every position: max(0, xW<sub>1</sub> + b<sub>1</sub>)W<sub>2</sub> + b<sub>2</sub>, inner width <span data-value="research/captures/paper.json#d_ff" data-format="int"></span></td><td><cite>Vaswani §3.3</cite></td></tr>
+<tr><td><dfn>residual connection</dfn></td><td>adds a sub-layer's input to its output; helps gradients flow</td><td><cite>slide 73</cite></td></tr>
+<tr><td><dfn>layer normalization</dfn></td><td>keeps activations on a consistent scale; LayerNorm(x + Sublayer(x))</td><td><cite>slide 74</cite> <cite>Vaswani §3.1</cite></td></tr>
+<tr><td>output layer</td><td>a linear projection then softmax over the vocabulary: one class per word</td><td><cite>slide 72</cite></td></tr>
+</tbody></table>
+<h2>Order has to be added</h2>
+<p>Attention has no sense of order on its own. It compares every pair of tokens the same way wherever they sit, and the model "contains no recurrence and no convolution", so without help it cannot tell "bear reads" from "reads bear" <cite>Vaswani §3.5</cite>. The fix, <dfn>positional encoding</dfn>, is to add a position vector to each token's embedding, either learned or hard-coded <cite>slide 68</cite>. The paper's hard-coded version uses sines and cosines of different frequencies <cite>Vaswani §3.5</cite>:</p>
+<blockquote class="rule" data-label="Sinusoidal positional encoding">PE<sub>(pos, 2i)</sub> = sin(pos / 10000<sup>2i/d<sub>model</sub></sup>), &nbsp; PE<sub>(pos, 2i+1)</sub> = cos(pos / 10000<sup>2i/d<sub>model</sub></sup>) <cite>Vaswani §3.5</cite></blockquote>
+<div class="callout plain" data-label="In plain words"><p>Each position gets its own vector of waves: the first numbers swing quickly as the position grows, later ones slowly, so no two positions get the same pattern. That vector is added to the token's embedding.</p>
+<dl><dt>pos</dt><dd>the token's position in the sentence: 0, 1, 2, …</dd><dt>2i, 2i+1</dt><dd>an even and an odd position inside the vector; even ones use sine, odd ones cosine</dd><dt>d<sub>model</sub></dt><dd>the length of every token vector, 512 in the paper</dd><dt>sin, cos</dt><dd>the wave functions from trigonometry: they repeat smoothly between −1 and 1</dd></dl></div>
+<p>Lecture 2 covers what replaced it, rotary embeddings <cite>L2 slides 70–73</cite>.</p>
+<p class="sources">Lecture 1 slides 68–74; Lecture 2 slides 70–73; Vaswani §3.1, §3.2.3, §3.3, §3.5; research/captures/paper.json</p>
+</section>
+
+<section class="sec" id="train-infer" data-title="Training time versus inference time" data-deck="At training time the model sees the whole correct answer at once and is graded on every next word in one pass. At inference it has no answer to look at, so it writes one token, feeds it back, and runs again.">
+<p>This section explains masking, compares the two modes side by side, and counts the work each one does on the lecture's example sentence.</p>
+<div class="callout prereq" data-label="Uses"><p>0.6 training and inference · 0.7 cross-entropy · 0.5 softmax and −∞ · 1.5 decoder</p></div>
+<div class="callout focus" data-label="Focus"><p>Same model, same weights, two ways of running it. Training: one parallel pass over a known sentence, with a mask so no position peeks at its own answer. Inference: a loop, one new token per pass, because the next input does not exist until the model writes it.</p></div>
+<p><dfn>Masking</dfn> means each decoder position only looks at the tokens before it; the mask that does this is called a <dfn>causal mask</dfn>. Slide 75 says why: future tokens have to be hidden "at training time", and building the mask as a matrix means "all operations are vectorized" <cite>slide 75</cite>. That is the key to the difference. At training time the whole French sentence is already known, so the decoder gets all of it at once, shifted right by one position behind <code>[BOS]</code>, and the mask stops each position from seeing the word it must predict <cite>Vaswani §3.1</cite>.</p>
+<figure class="fig" id="fig-mask" data-title="The causal mask" data-tag="research/captures/train_vs_inference.json">
+<!--#include research/figs/mask.html-->
+<figcaption><b>Seven predictions from one pass, none of which can see its own answer.</b> Row = the position attending; ticks = what it may attend to; hatched cells are set to −∞ before the softmax (Vaswani §3.2.3). Right: the word each position is trained to predict.</figcaption></figure>
+<figure class="fig" id="fig-modes" data-title="Training versus inference" data-tag="comparison · slides 75, 106–115; cheatsheet; L2 slides 97–108">
+<table><thead><tr><th></th><th>Training</th><th>Inference</th></tr></thead><tbody>
+<tr><td>decoder input</td><td>the correct sentence, shifted right: <code>[BOS] Un ours en peluche mignon lit</code></td><td>only what it has generated so far, starting from <code>[BOS]</code></td></tr>
+<tr><td>passes for this sentence</td><td><span data-value="research/captures/train_vs_inference.json#forward_passes_training"></span></td><td><span data-value="research/captures/train_vs_inference.json#forward_passes_inference"></span>, one per token, until <code>[EOS]</code></td></tr>
+<tr><td>mask</td><td>needed: all positions run at once</td><td>not needed for correctness: the future does not exist yet</td></tr>
+<tr><td>output used</td><td>every position's probability over the vocabulary</td><td>only the last position's; one token is picked from it</td></tr>
+<tr><td>how the token is picked</td><td>not picked: the loss uses the probability of the correct word</td><td>greedy, beam search or sampling with top-k, top-p, temperature</td></tr>
+<tr><td>loss and weight updates</td><td>cross-entropy on every position, then gradients</td><td>none; weights are frozen</td></tr>
+<tr><td><dfn>dropout</dfn> (randomly zeroing some numbers during training), label smoothing</td><td>on: both 0.1, listed under regularization for training</td><td>not used: there is no loss, and dropout is a training-time regularizer</td></tr>
+<tr><td>speed-up</td><td>parallel over positions</td><td><dfn>KV cache</dfn>: keep earlier keys and values instead of recomputing them</td></tr>
+</tbody></table>
+<figcaption><b>Training is one parallel pass over a known answer; inference is a loop.</b> From slide 75, the end-to-end decoding on slides 106–115, Vaswani §5.4, the cheatsheet's inference section, and Lecture 2's decoding strategies (slides 97–108).</figcaption></figure>
+<h2>The numbers on the lecture's sentence</h2>
+<p>The check script runs a toy decoder layer on the seven French positions both ways. The masked single pass and the token-by-token loop give the same outputs, to within 10<sup>−15</sup>, which is the point of the mask: training computes exactly what inference will later compute, all at once.</p>
+<table><thead><tr><th>Query–key dot products for one attention layer</th><th class="n">Count</th></tr></thead><tbody>
+<tr><td>training pass, computed (7 × 7) then masked</td><td class="n" data-value="research/captures/train_vs_inference.json#dots_training_pass_computed"></td></tr>
+<tr><td>training pass, actually used (the ticks)</td><td class="n" data-value="research/captures/train_vs_inference.json#dots_training_pass_used"></td></tr>
+<tr><td>inference, recomputing the whole prefix every step</td><td class="n" data-value="research/captures/train_vs_inference.json#dots_inference_no_cache"></td></tr>
+<tr><td>inference with a KV cache: only the new query each step</td><td class="n" data-value="research/captures/train_vs_inference.json#dots_inference_with_cache"></td></tr>
+</tbody></table>
+<p class="note">From research/captures/train_vs_inference.json. The cache turns inference back into the same 28 dot products training uses, but spread over 7 sequential passes.</p>
+<h2>What training optimises</h2>
+<p>At each position the model outputs a probability for every word in the vocabulary, and the loss is cross-entropy (0.7): minus the log of the probability given to the correct next token <cite>cheatsheet</cite>. If the model gives the correct word 0.4, that position costs <span data-value="research/captures/train_vs_inference.json#ce_loss_example.loss"></span>; at 0.9 it costs <span data-value="research/captures/train_vs_inference.json#ce_loss_if_p_0_9"></span>. <dfn>Label smoothing</dfn> softens the target so the model is not pushed to be 100% sure: with ε = 0.1 and a ten-word vocabulary, the correct word's target becomes <span data-value="research/captures/train_vs_inference.json#label_smoothing_example.correct"></span> and every other word's <span data-value="research/captures/train_vs_inference.json#label_smoothing_example.each_other"></span> <cite>slide 78</cite> <cite>Vaswani §5.4</cite>.</p>
+<div class="callout why" data-label="In the lecture"><p>The end-to-end example, slides 79–115, is the lecture's own walk through both modes: the encoder turns the English sentence into encoded embeddings once, then the decoder produces <code>Un</code>, then <code>ours</code>, and so on, until <code>[EOS]</code> <cite>slides 106–115</cite>. Worth rewatching with this table open.</p></div>
+<div class="callout why" data-label="Where this goes next"><p>The cheatsheet names the two phases of LLM inference: prefill, which processes the whole prompt in parallel to fill the KV cache, and decode, which then generates one token at a time <cite>cheatsheet</cite>. Lecture 5 covers it (syllabus).</p></div>
+<p class="sources">Lecture 1 slides 75, 78, 106–115; Lecture 2 slides 97–108; Vaswani §3.1, §3.2.3, §5.4; cheatsheet (cross-entropy loss, KV caching, prefill vs decode); research/captures/train_vs_inference.json</p>
+</section>
+
+<section class="sec" id="to-llm" data-title="From the Transformer to an LLM" data-deck="An LLM is the Transformer's decoder on its own, made very large and trained to predict the next token of ordinary text. Lecture 1's translation model is the same machinery with an encoder bolted on.">
+<p>This section previews how Lecture 2 turns Lecture 1's model into today's LLMs.</p>
+<div class="callout prereq" data-label="Uses"><p>1.5 encoder and decoder · 1.6 inference loop</p></div>
+<div class="callout focus" data-label="Focus"><p>Take the decoder, delete the encoder and the cross-attention, and keep the masked self-attention. Train it to predict the next token of huge amounts of text. That is a GPT-style LLM.</p></div>
+<figure class="fig" id="fig-families" data-title="Encoder-decoder vs decoder-only" data-tag="comparison · L2 slides 18–21, 31–34">
+<table><thead><tr><th></th><th>Encoder-decoder (Lecture 1)</th><th>Decoder-only (an LLM)</th></tr></thead><tbody>
+<tr><td>parts</td><td>encoder stack + decoder stack, joined by cross-attention</td><td>decoder stack only</td></tr>
+<tr><td>attention on the input</td><td>bidirectional: every input token sees every other</td><td>causal: each token sees only those before it</td></tr>
+<tr><td>attention on the output</td><td>causal</td><td>causal: the input and output are one sequence</td></tr>
+<tr><td>job</td><td>"compute meaningful embeddings", then "generate next token"</td><td>"generate next token" <dfn>autoregressively</dfn>: each new token is fed back in as input</td></tr>
+<tr><td>examples</td><td>the 2017 Transformer, T5</td><td>GPT series, Gemma, DeepSeek, Qwen, GLM, Kimi</td></tr>
+</tbody></table>
+<figcaption><b>An LLM keeps the half that writes.</b> From Lecture 2 slides 18–21 and 32–34; T5 from the cheatsheet.</figcaption></figure>
+<p>Lecture 2 defines a <dfn>large language model</dfn> (LLM) by three things: billions of parameters or more, hundreds of billions of training tokens or more, and a lot of GPUs <cite>L2 slide 31</cite>. Generation is the inference loop from the previous section with a prompt instead of <code>[BOS]</code> alone: predict a token, append it, predict again <cite>L2 slides 90–94</cite>. Because the input is causal too, training on raw text needs no labels: every position's target is simply the next token of the text.</p>
+<p class="sources">Lecture 2 slides 18–21, 31–34, 90–94; cheatsheet (decoder-only, encoder-decoder remark)</p>
+</section>

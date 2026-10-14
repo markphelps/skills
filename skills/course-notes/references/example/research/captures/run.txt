@@ -1,0 +1,77 @@
+{
+ "paper": {
+  "d_model": 512,
+  "h": 8,
+  "N": 6,
+  "d_ff": 2048,
+  "d_k": 64,
+  "d_v": 64,
+  "attn_params_per_layer": 1048576,
+  "ffn_params_per_layer": 2097152,
+  "label_smoothing": 0.1,
+  "dropout": 0.1,
+  "one_big_head_params": 1048576
+ },
+ "head1_top": "cute",
+ "head2_top": "reading",
+ "head1_w": [
+  0.045,
+  0.761,
+  0.06,
+  0.045,
+  0.045,
+  0.045
+ ],
+ "head2_w": [
+  0.043,
+  0.043,
+  0.043,
+  0.1,
+  0.728,
+  0.043
+ ],
+ "mixed": {
+  "weights": [
+   0.077,
+   0.319,
+   0.089,
+   0.118,
+   0.319,
+   0.077
+  ],
+  "top2": [
+   "cute",
+   "reading"
+  ]
+ },
+ "tvi": {
+  "labels": [
+   "Un",
+   "ours",
+   "en",
+   "peluche",
+   "mignon",
+   "lit",
+   "[EOS]"
+  ],
+  "max_diff_train_vs_steps": 4.440892098500626e-16,
+  "max_diff_steps_vs_cache": 5.551115123125783e-16,
+  "dots_training_pass_computed": 49,
+  "dots_training_pass_used": 28,
+  "dots_inference_no_cache": 140,
+  "dots_inference_with_cache": 28,
+  "forward_passes_training": 1,
+  "forward_passes_inference": 7,
+  "ce_loss_example": {
+   "p": 0.4,
+   "loss": 0.916
+  },
+  "ce_loss_if_p_0_9": 0.105,
+  "label_smoothing_example": {
+   "eps": 0.1,
+   "V": 10,
+   "correct": 0.91,
+   "each_other": 0.01
+  }
+ }
+}
