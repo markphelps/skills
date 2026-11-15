@@ -18,6 +18,9 @@ agent context.
 
 - `cli-design`: design, build, or review command-line interfaces using the
   Command Line Interface Guidelines from clig.dev
+- `council`: before finalizing a plan, deliberate with the other agent CLIs
+  installed on the machine for a set number of read-only review turns
+  (vendored from kitze/council under MIT)
 - `codebase-landing-copy`: write product landing-page copy grounded in
   capabilities that are proven by shipped code
 - `context-file-tuneup`: audit and rewrite `CLAUDE.md` / `AGENTS.md` files so
@@ -87,5 +90,8 @@ agent context.
   standalone (no "you", no quotes from or mentions of the original notes); ask
   the student about their own pages in the conversation, one question at a time.
   Ask for the familiarity level (1–5) before writing.
+- For council deliberations, members run read-only and never touch the repo,
+  and nothing is implemented unless the user asked for execution after
+  planning. Keep `development/skills/council/LICENSE` with the skill.
 - Do not manually restore removed development skills in top-level `skills/`.
   Run `npm run sync` so the generated mirror matches `development/skills/`.

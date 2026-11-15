@@ -1,11 +1,11 @@
 # Development Plugin
 
 Developer workflow skills for repo-facing agent context, GitHub PR follow-up,
-command-line interface design, codebase-grounded landing copy, architecture
-mapping and whiteboard defense, open source release preparation, audits of your
-own agent session logs, agent feature maps, bug-claim verification, decision
-records, source-grounded technical manuals, source-checked course notes, and
-GitHub Actions self-hosted runners.
+command-line interface design, multi-agent plan councils, codebase-grounded
+landing copy, architecture mapping and whiteboard defense, open source release
+preparation, audits of your own agent session logs, agent feature maps,
+bug-claim verification, decision records, source-grounded technical manuals,
+source-checked course notes, and GitHub Actions self-hosted runners.
 
 ## Skill Set
 
@@ -13,6 +13,7 @@ GitHub Actions self-hosted runners.
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cli-design`                | Designs and reviews command-line interfaces using clig.dev guidance.                                                           | When creating CLI commands, flags, help text, output contracts, error messages, or destructive workflows.                                                              |
 | `codebase-landing-copy`     | Writes product landing-page copy grounded in shipped code and an evidence ledger.                                              | When writing or fact-checking landing pages, homepages, product pitches, hero copy, or store listings for a repo-backed product.                                       |
+| `council`                   | Has the lead agent deliberate a plan with the other installed agent CLIs over read-only review turns.                          | When the user asks to convene the council, consult the other agents, or deliberate for N turns before planning.                                                        |
 | `context-file-tuneup`       | Audits, rewrites, and tightens `CLAUDE.md` / `AGENTS.md` context files.                                                        | When reviewing, shrinking, restructuring, or improving agent context.                                                                                                  |
 | `course-notes`              | Turns photos of lecture notes into standalone, source-checked study notes as a PDF, pitched at the reader's familiarity (1–5). | When someone shares photos of lecture notes, wants them expanded, checked or filled in, or wants a study guide for a lecture.                                          |
 | `decision-records`          | Writes and maintains decision and plan records (ADRs) and their registry table, preserving history.                            | When recording an architecture, product, design, or dependency decision, amending or superseding a record, or starting a records directory.                            |
@@ -58,6 +59,9 @@ GitHub Actions self-hosted runners.
   after the user confirms each one.
 - Codebase landing copy is for a product's own landing page and must trace
   claims to shipped code; use OSS marketing for open-source README positioning.
+- Council is vendored from [kitze/council](https://github.com/kitze/council)
+  under MIT; keep its `LICENSE` file with the skill. Members are invoked
+  read-only and nothing is implemented without an explicit request.
 - Session log audits need a project the user built with agents and used
   recently. Every finding must carry a dated receipt from a real session.
 - Decision records are historical evidence. Preserve IDs, filenames, and past
